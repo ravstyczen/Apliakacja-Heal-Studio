@@ -6,28 +6,34 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:e2e": "npx playwright test --project=e2e",
+    "test:e2e:headed": "npx playwright test --project=e2e --headed",
+    "test:auth": "npx playwright test --project=auth-setup --headed",
+    "test:smoke": "npx playwright test smoke.spec.ts --project=e2e",
+    "test:report": "npx playwright show-report"
   },
   "dependencies": {
+    "date-fns": "^3.6.0",
+    "googleapis": "^140.0.0",
     "next": "^14.2.0",
+    "next-auth": "^4.24.0",
+    "nodemailer": "^7.0.7",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
-    "next-auth": "^4.24.0",
-    "googleapis": "^140.0.0",
-    "date-fns": "^3.6.0",
-    "nodemailer": "^7.0.7",
     "zustand": "^4.5.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@types/node": "^20.14.0",
+    "@types/nodemailer": "^6.4.17",
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
-    "@types/nodemailer": "^6.4.17",
-    "typescript": "^5.5.0",
-    "tailwindcss": "^3.4.0",
-    "postcss": "^8.4.0",
     "autoprefixer": "^10.4.0",
     "eslint": "^8.57.0",
-    "eslint-config-next": "^14.2.0"
+    "eslint-config-next": "^14.2.0",
+    "postcss": "^8.4.0",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.5.0"
   }
 }
