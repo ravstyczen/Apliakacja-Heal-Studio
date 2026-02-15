@@ -1,15 +1,28 @@
 import NextAuth from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
-// Force NEXTAUTH_URL to production domain on Vercel so OAuth callbacks
-// don't use the preview-deployment-specific VERCEL_URL.
-// Uses dynamic key access to prevent Next.js webpack from replacing
-// process.env.NEXTAUTH_URL with a build-time value.
-const NEXTAUTH_KEY = 'NEXTAUTH_URL';
-if (process.env.VERCEL && !process.env[NEXTAUTH_KEY]) {
-  process.env[NEXTAUTH_KEY] = 'https://apliakacja-heal-studio.vercel.app';
+// Create handler per-request to guarantee NEXTAUTH_URL is set before
+// NextAuth reads it. This prevents preview deployments from using
+// the deployment-specific VERCEL_URL as the OAuth callback.
+function ensureProductionUrl() {
+  const key = 'NEXTAUTH_URL';
+  if (!process.env[key]) {
+    process.env[key] = 'https://apliakacja-heal-studio.vercel.app';
+  }
 }
 
-const handler = NextAuth(authOptions);
+export async function GET(
+  req: Request,
+  ctx: { params: { nextauth: string[] } }
+) {
+  ensureProductionUrl();
+  return NextAuth(authOptions)(req, ctx);
+}
 
-export { handler as GET, handler as POST };
+export async function POST(
+  req: Request,
+  ctx: { params: { nextauth: string[] } }
+) {
+  ensureProductionUrl();
+  return NextAuth(authOptions)(req, ctx);
+}
