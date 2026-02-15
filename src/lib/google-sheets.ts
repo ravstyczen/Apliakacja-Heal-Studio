@@ -277,6 +277,8 @@ export async function getInstructorsFromSheet(
       },
     }));
   } catch {
+    // Sheet might not exist yet, initialize it
+    await initializeInstructorsSheet(accessToken, spreadsheetId);
     return [];
   }
 }
@@ -303,13 +305,23 @@ export async function saveInstructorsToSheet(
     String(i.pricing.trio.share),
   ]);
 
-  // Clear existing data and write new
-  await sheets.spreadsheets.values.update({
-    spreadsheetId,
-    range: `${SHEETS.INSTRUCTORS}!A2:L${instructors.length + 1}`,
-    valueInputOption: 'USER_ENTERED',
-    requestBody: { values },
-  });
+  try {
+    await sheets.spreadsheets.values.update({
+      spreadsheetId,
+      range: `${SHEETS.INSTRUCTORS}!A2:L${instructors.length + 1}`,
+      valueInputOption: 'USER_ENTERED',
+      requestBody: { values },
+    });
+  } catch {
+    // Sheet might not exist, initialize and retry
+    await initializeInstructorsSheet(accessToken, spreadsheetId);
+    await sheets.spreadsheets.values.update({
+      spreadsheetId,
+      range: `${SHEETS.INSTRUCTORS}!A2:L${instructors.length + 1}`,
+      valueInputOption: 'USER_ENTERED',
+      requestBody: { values },
+    });
+  }
 }
 
 // ---- INITIALIZATION ----
@@ -402,10 +414,59 @@ async function initializeSessionsSheet(
   });
 }
 
+async function initializeInstructorsSheet(
+  accessToken: string,
+  spreadsheetId: string
+): Promise<void> {
+  const sheets = getSheetsClient(accessToken);
+
+  try {
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId,
+      requestBody: {
+        requests: [
+          {
+            addSheet: {
+              properties: { title: SHEETS.INSTRUCTORS },
+            },
+          },
+        ],
+      },
+    });
+  } catch {
+    // Sheet might already exist
+  }
+
+  await sheets.spreadsheets.values.update({
+    spreadsheetId,
+    range: `${SHEETS.INSTRUCTORS}!A1:L1`,
+    valueInputOption: 'USER_ENTERED',
+    requestBody: {
+      values: [
+        [
+          'ID',
+          'Imię i Nazwisko',
+          'E-mail',
+          'Kolor',
+          'Nazwa koloru',
+          'Rola',
+          'Solo cena',
+          'Solo udział',
+          'Duo cena',
+          'Duo udział',
+          'Trio cena',
+          'Trio udział',
+        ],
+      ],
+    },
+  });
+}
+
 export async function initializeSpreadsheet(
   accessToken: string,
   spreadsheetId: string
 ): Promise<void> {
   await initializeClientsSheet(accessToken, spreadsheetId);
   await initializeSessionsSheet(accessToken, spreadsheetId);
+  await initializeInstructorsSheet(accessToken, spreadsheetId);
 }

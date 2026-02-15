@@ -78,7 +78,8 @@ export default function InstructorSettings() {
         setMessage('Zapisano pomyślnie');
         setEditingId(null);
       } else {
-        setMessage('Wystąpił błąd');
+        const data = await res.json().catch(() => null);
+        setMessage(data?.error || 'Wystąpił błąd podczas zapisywania');
       }
     } catch {
       setMessage('Wystąpił błąd');
@@ -191,6 +192,7 @@ export default function InstructorSettings() {
                               <input
                                 type="number"
                                 value={instr.pricing[type].price}
+                                onFocus={(e) => e.target.select()}
                                 onChange={(e) =>
                                   updatePricing(instr.id, type, 'price', Number(e.target.value))
                                 }
@@ -207,6 +209,7 @@ export default function InstructorSettings() {
                               <input
                                 type="number"
                                 value={instr.pricing[type].share}
+                                onFocus={(e) => e.target.select()}
                                 onChange={(e) =>
                                   updatePricing(instr.id, type, 'share', Number(e.target.value))
                                 }

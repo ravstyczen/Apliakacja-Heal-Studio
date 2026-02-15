@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
-import { format, addDays, startOfWeek, isSameDay, isToday } from 'date-fns';
+import { format, addDays, startOfWeek, isToday } from 'date-fns';
 import { pl } from 'date-fns/locale';
-import { Session as SessionType, Instructor, isOwnerOrAdmin } from '@/lib/types';
+import { Session as SessionType, Instructor } from '@/lib/types';
 import { DEFAULT_INSTRUCTORS } from '@/lib/instructors-data';
 import SessionModal from './SessionModal';
 
@@ -14,7 +14,6 @@ export default function CalendarView() {
   const { data: session } = useSession();
   const instructor = (session as any)?.instructor as Instructor | null;
 
-  const [selectedDate, setSelectedDate] = useState(new Date());
   const [weekStart, setWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
   const [sessions, setSessions] = useState<SessionType[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,9 +48,7 @@ export default function CalendarView() {
   };
 
   const goToToday = () => {
-    const today = new Date();
-    setSelectedDate(today);
-    setWeekStart(startOfWeek(today, { weekStartsOn: 1 }));
+    setWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }));
   };
 
   const getSessionsForSlot = (date: Date, hour: number): SessionType[] => {
@@ -113,39 +110,15 @@ export default function CalendarView() {
         <div className="flex items-center gap-2 mb-3">
           <button
             onClick={() => navigateWeek(-1)}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm"
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm shrink-0"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" strokeWidth="2">
               <polyline points="15 18 9 12 15 6" />
             </svg>
           </button>
-          <div className="flex-1 flex gap-1">
-            {weekDays.map((day) => (
-              <button
-                key={day.toISOString()}
-                onClick={() => setSelectedDate(day)}
-                className={`flex-1 flex flex-col items-center py-1.5 rounded-xl transition-colors ${
-                  isSameDay(day, selectedDate)
-                    ? 'bg-heal-primary text-white'
-                    : isToday(day)
-                    ? 'bg-heal-primary/10 text-heal-primary'
-                    : 'text-gray-500'
-                }`}
-              >
-                <span className="text-[10px] font-medium uppercase">
-                  {format(day, 'EEE', { locale: pl })}
-                </span>
-                <span className={`text-sm font-semibold ${
-                  isSameDay(day, selectedDate) ? 'text-white' : ''
-                }`}>
-                  {format(day, 'd')}
-                </span>
-              </button>
-            ))}
-          </div>
           <button
             onClick={() => navigateWeek(1)}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm"
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm shrink-0"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1A1A1A" strokeWidth="2">
               <polyline points="9 18 15 12 9 6" />
@@ -169,66 +142,88 @@ export default function CalendarView() {
         </div>
       </div>
 
-      {/* Time grid */}
-      <div className="flex-1 overflow-y-auto px-4 pb-24">
+      {/* Weekly calendar grid */}
+      <div className="flex-1 overflow-auto px-2 pb-24">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <div className="spinner" />
           </div>
         ) : (
-          <div className="relative">
-            {HOURS.map((hour) => {
-              const slotSessions = getSessionsForSlot(selectedDate, hour);
-              return (
+          <div className="min-w-[600px]">
+            {/* Day headers */}
+            <div className="grid sticky top-0 bg-heal-bg z-10" style={{ gridTemplateColumns: '40px repeat(7, 1fr)' }}>
+              <div />
+              {weekDays.map((day) => (
                 <div
-                  key={hour}
-                  className="time-slot flex"
-                  onClick={() => handleSlotClick(selectedDate, hour)}
+                  key={day.toISOString()}
+                  className={`text-center py-2 ${
+                    isToday(day) ? 'text-heal-primary' : 'text-gray-500'
+                  }`}
                 >
-                  {/* Time label */}
-                  <div className="w-14 shrink-0 text-xs text-gray-400 font-medium pt-1 pr-2 text-right">
-                    {`${hour}:00`}
+                  <div className="text-[10px] font-medium uppercase">
+                    {format(day, 'EEE', { locale: pl })}
                   </div>
-
-                  {/* Session area */}
-                  <div className="flex-1 border-l border-heal-light pl-2 min-h-[64px] flex flex-wrap gap-1 py-1">
-                    {slotSessions.map((s) => (
-                      <div
-                        key={s.id}
-                        onClick={(e) => handleSessionClick(s, e)}
-                        className="session-card flex-1 min-w-[80px]"
-                        style={{
-                          backgroundColor: `${getInstructorColor(s.instructorId)}15`,
-                          borderLeft: `3px solid ${getInstructorColor(s.instructorId)}`,
-                          color: getInstructorColor(s.instructorId),
-                        }}
-                      >
-                        <div className="font-semibold text-[11px]">
-                          [{s.type.toUpperCase()}]
-                        </div>
-                        <div className="text-[10px] opacity-80 truncate">
-                          {s.instructorName?.split(' ')[0]}
-                        </div>
-                        {s.clientNames.length > 0 && (
-                          <div className="text-[9px] opacity-60 truncate mt-0.5">
-                            {s.clientNames.join(', ')}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-
-                    {slotSessions.length === 0 && (
-                      <div className="flex-1 flex items-center justify-center opacity-0 hover:opacity-30 transition-opacity">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2">
-                          <line x1="12" y1="5" x2="12" y2="19" />
-                          <line x1="5" y1="12" x2="19" y2="12" />
-                        </svg>
-                      </div>
-                    )}
+                  <div className={`text-sm font-semibold ${
+                    isToday(day)
+                      ? 'bg-heal-primary text-white w-7 h-7 rounded-full flex items-center justify-center mx-auto'
+                      : ''
+                  }`}>
+                    {format(day, 'd')}
                   </div>
                 </div>
-              );
-            })}
+              ))}
+            </div>
+
+            {/* Time grid rows */}
+            {HOURS.map((hour) => (
+              <div
+                key={hour}
+                className="grid border-t border-heal-light/50"
+                style={{ gridTemplateColumns: '40px repeat(7, 1fr)' }}
+              >
+                {/* Time label */}
+                <div className="text-[10px] text-gray-400 font-medium pt-1 pr-1 text-right">
+                  {`${hour}:00`}
+                </div>
+
+                {/* Day cells */}
+                {weekDays.map((day) => {
+                  const slotSessions = getSessionsForSlot(day, hour);
+                  return (
+                    <div
+                      key={day.toISOString()}
+                      className="border-l border-heal-light/50 min-h-[56px] p-0.5 cursor-pointer hover:bg-heal-primary/5 transition-colors"
+                      onClick={() => handleSlotClick(day, hour)}
+                    >
+                      {slotSessions.map((s) => (
+                        <div
+                          key={s.id}
+                          onClick={(e) => handleSessionClick(s, e)}
+                          className="rounded-md p-1 mb-0.5 cursor-pointer"
+                          style={{
+                            backgroundColor: `${getInstructorColor(s.instructorId)}15`,
+                            borderLeft: `2px solid ${getInstructorColor(s.instructorId)}`,
+                            color: getInstructorColor(s.instructorId),
+                          }}
+                        >
+                          <div className="font-semibold text-[9px] leading-tight">
+                            {s.type.charAt(0)}
+                          </div>
+                          <div className="text-[8px] opacity-80 truncate leading-tight">
+                            {s.instructorName?.split(' ')[0]}
+                          </div>
+                          {Array.isArray(s.clientNames) && s.clientNames.length > 0 && (
+                            <div className="text-[7px] opacity-60 truncate leading-tight">
+                              {s.clientNames.join(', ')}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -237,7 +232,7 @@ export default function CalendarView() {
       <button
         onClick={() => {
           setSelectedSlot({
-            date: format(selectedDate, 'yyyy-MM-dd'),
+            date: format(new Date(), 'yyyy-MM-dd'),
             hour: 8,
           });
           setSelectedSession(null);

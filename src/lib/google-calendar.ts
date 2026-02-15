@@ -161,6 +161,21 @@ export async function getCalendarEvents(
       const start = new Date(event.start?.dateTime || event.start?.date || '');
       const end = new Date(event.end?.dateTime || event.end?.date || '');
 
+      let clientIds: string[] = [];
+      let clientNames: string[] = [];
+      try {
+        const parsed = props.clientIds ? JSON.parse(props.clientIds) : [];
+        clientIds = Array.isArray(parsed) ? parsed : [];
+      } catch {
+        clientIds = [];
+      }
+      try {
+        const parsed = props.clientNames ? JSON.parse(props.clientNames) : [];
+        clientNames = Array.isArray(parsed) ? parsed : [];
+      } catch {
+        clientNames = [];
+      }
+
       return {
         id: event.id!,
         calendarEventId: event.id!,
@@ -180,8 +195,8 @@ export async function getCalendarEvents(
         type: props.sessionType as SessionType,
         instructorId: props.instructorId || '',
         instructorName: getInstructorById(props.instructorId || '')?.name || '',
-        clientIds: props.clientIds ? JSON.parse(props.clientIds) : [],
-        clientNames: props.clientNames ? JSON.parse(props.clientNames) : [],
+        clientIds,
+        clientNames,
         isRecurring: props.isRecurring === 'true',
         recurringGroupId: props.recurringGroupId || null,
         recurringEndDate: props.recurringEndDate || null,
