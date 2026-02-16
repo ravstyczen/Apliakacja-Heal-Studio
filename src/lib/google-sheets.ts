@@ -156,6 +156,34 @@ export async function deleteClient(
 
 // ---- SETTLEMENTS ----
 
+export async function clearSettlements(
+  accessToken: string,
+  spreadsheetId: string
+): Promise<void> {
+  const sheets = getSheetsClient(accessToken);
+  try {
+    // Clear data rows
+    await sheets.spreadsheets.values.clear({
+      spreadsheetId,
+      range: `${SHEETS.SESSIONS}!A2:Z`,
+    });
+    // Re-write headers to ensure correct column layout
+    await sheets.spreadsheets.values.update({
+      spreadsheetId,
+      range: `${SHEETS.SESSIONS}!A1:I1`,
+      valueInputOption: 'USER_ENTERED',
+      requestBody: {
+        values: [
+          ['ID', 'Data', 'Godzina', 'Rodzaj sesji', 'ID Instruktora', 'Instruktor', 'Klienci', 'Cena', 'Udział instruktora'],
+        ],
+      },
+    });
+  } catch {
+    // Sheet might not exist, initialize it
+    await initializeSessionsSheet(accessToken, spreadsheetId);
+  }
+}
+
 export async function addSettlement(
   accessToken: string,
   spreadsheetId: string,

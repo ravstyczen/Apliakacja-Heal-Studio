@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { getCalendarEvents } from '@/lib/google-calendar';
-import { getSettlements, addSettlement, getInstructorsFromSheet } from '@/lib/google-sheets';
+import { clearSettlements, addSettlement, getInstructorsFromSheet } from '@/lib/google-sheets';
 import { getInstructorById } from '@/lib/instructors-data';
 import { Instructor, getSessionPrice, getSessionShare } from '@/lib/types';
 
@@ -30,14 +30,6 @@ export async function POST() {
       CALENDAR_ID
     );
 
-    // Read existing settlements
-    const existingSettlements = await getSettlements(accessToken, SHEETS_ID);
-
-    // Build a set of existing settlement keys for deduplication
-    const existingKeys = new Set(
-      existingSettlements.map((s) => `${s.date}|${s.time}|${s.instructorId}|${s.sessionType}`)
-    );
-
     // Load instructor pricing from sheet (source of truth)
     let sheetInstructors: Instructor[] = [];
     try {
@@ -50,18 +42,19 @@ export async function POST() {
       return sheetInstructors.find((i) => i.id === instructorId) || getInstructorById(instructorId);
     };
 
-    let added = 0;
-
     // Only sync past events (sessions that have already occurred)
     const pastEvents = calendarEvents.filter((event) => {
       const eventEnd = new Date(`${event.date}T${event.endTime}:00`);
       return eventEnd < now;
     });
 
-    for (const event of pastEvents) {
-      const key = `${event.date}|${event.startTime}|${event.instructorId}|${event.type}`;
-      if (existingKeys.has(key)) continue;
+    // Clear all existing settlement data and re-write from calendar
+    // This ensures correct column alignment after schema changes
+    await clearSettlements(accessToken, SHEETS_ID);
 
+    let added = 0;
+
+    for (const event of pastEvents) {
       const instructor = findInstructor(event.instructorId);
       if (!instructor) continue;
 
@@ -79,7 +72,6 @@ export async function POST() {
         instructorShare: share,
       });
 
-      existingKeys.add(key);
       added++;
     }
 
