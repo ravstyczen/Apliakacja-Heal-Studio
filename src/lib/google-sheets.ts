@@ -34,8 +34,8 @@ export async function getClients(
       lastName: row[2] || '',
       phone: row[3] || '',
       email: row[4] || '',
-      isOwnerClient: row[5] === 'true',
-      regulationsAccepted: row[6] === 'true',
+      isOwnerClient: row[5]?.toLowerCase() === 'true',
+      regulationsAccepted: row[6]?.toLowerCase() === 'true',
       regulationsAcceptedDate: row[7] || null,
     }));
   } catch {
