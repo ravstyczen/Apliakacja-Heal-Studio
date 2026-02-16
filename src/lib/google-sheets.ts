@@ -1,6 +1,15 @@
 import { google } from 'googleapis';
 import { Client, Settlement, MonthlySettlement, Instructor } from './types';
 
+function isTrueValue(val: unknown): boolean {
+  if (typeof val === 'boolean') return val;
+  if (typeof val === 'string') {
+    const lower = val.toLowerCase();
+    return lower === 'true' || lower === 'prawda';
+  }
+  return false;
+}
+
 function getSheetsClient(accessToken: string) {
   const auth = new google.auth.OAuth2();
   auth.setCredentials({ access_token: accessToken });
@@ -34,8 +43,8 @@ export async function getClients(
       lastName: row[2] || '',
       phone: row[3] || '',
       email: row[4] || '',
-      isOwnerClient: row[5]?.toLowerCase() === 'true',
-      regulationsAccepted: row[6]?.toLowerCase() === 'true',
+      isOwnerClient: isTrueValue(row[5]),
+      regulationsAccepted: isTrueValue(row[6]),
       regulationsAcceptedDate: row[7] || null,
     }));
   } catch {
