@@ -7,12 +7,23 @@ import {
   deleteCalendarEvent,
   getCalendarEvents,
 } from '@/lib/google-calendar';
-import { addSettlement } from '@/lib/google-sheets';
+import { addSettlement, deleteSettlementByDetails } from '@/lib/google-sheets';
 import { getInstructorById } from '@/lib/instructors-data';
 import { getSessionPrice, getSessionShare } from '@/lib/types';
 
 const CALENDAR_ID = process.env.GOOGLE_CALENDAR_ID || 'primary';
 const SHEETS_ID = process.env.GOOGLE_SHEETS_ID || '';
+
+function getWeeklyDates(startDate: string, endDate: string): string[] {
+  const dates: string[] = [];
+  const current = new Date(startDate + 'T00:00:00');
+  const end = new Date(endDate + 'T23:59:59');
+  while (current <= end) {
+    dates.push(current.toISOString().split('T')[0]);
+    current.setDate(current.getDate() + 7);
+  }
+  return dates;
+}
 
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -54,21 +65,39 @@ export async function POST(request: NextRequest) {
 
   try {
     // Create single or recurring events
-    if (body.isRecurring && body.recurringEndDate) {
-      const eventId = await createCalendarEvent(
-        accessToken,
-        body,
-        CALENDAR_ID
-      );
-      return NextResponse.json({ id: eventId, calendarEventId: eventId });
-    } else {
-      const eventId = await createCalendarEvent(
-        accessToken,
-        { ...body, isRecurring: false, recurringEndDate: null },
-        CALENDAR_ID
-      );
-      return NextResponse.json({ id: eventId, calendarEventId: eventId });
+    const eventData = body.isRecurring && body.recurringEndDate
+      ? body
+      : { ...body, isRecurring: false, recurringEndDate: null };
+    const eventId = await createCalendarEvent(accessToken, eventData, CALENDAR_ID);
+
+    // Write settlement to Sesje sheet
+    if (SHEETS_ID) {
+      const instructor = getInstructorById(body.instructorId);
+      if (instructor) {
+        const price = getSessionPrice(instructor.pricing, body.type);
+        const share = getSessionShare(instructor.pricing, body.type);
+        const settlementBase = {
+          sessionType: body.type,
+          instructorId: body.instructorId,
+          instructorName: instructor.name,
+          clientNames: body.clientNames || [],
+          price,
+          instructorShare: share,
+        };
+
+        if (body.isRecurring && body.recurringEndDate) {
+          // Write entries for all recurring weekly dates
+          const dates = getWeeklyDates(body.date, body.recurringEndDate);
+          for (const date of dates) {
+            await addSettlement(accessToken, SHEETS_ID, { ...settlementBase, date });
+          }
+        } else {
+          await addSettlement(accessToken, SHEETS_ID, { ...settlementBase, date: body.date });
+        }
+      }
     }
+
+    return NextResponse.json({ id: eventId, calendarEventId: eventId });
   } catch (error: any) {
     return NextResponse.json(
       { error: error.message || 'Failed to create session' },
@@ -115,8 +144,19 @@ export async function DELETE(request: NextRequest) {
     );
   }
 
+  // Also get session details from query params for settlement deletion
+  const date = searchParams.get('date');
+  const instructorId = searchParams.get('instructorId');
+  const sessionType = searchParams.get('sessionType');
+
   try {
     await deleteCalendarEvent(accessToken, eventId, CALENDAR_ID);
+
+    // Remove corresponding settlement entry
+    if (SHEETS_ID && date && instructorId && sessionType) {
+      await deleteSettlementByDetails(accessToken, SHEETS_ID, date, instructorId, sessionType);
+    }
+
     return NextResponse.json({ success: true });
   } catch (error: any) {
     return NextResponse.json(

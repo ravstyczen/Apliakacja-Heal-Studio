@@ -25,6 +25,8 @@ export default function SettlementView() {
 
   const monthStr = format(currentMonth, 'yyyy-MM');
 
+  const [hasSynced, setHasSynced] = useState(false);
+
   const fetchSettlements = useCallback(async () => {
     setLoading(true);
     try {
@@ -42,6 +44,15 @@ export default function SettlementView() {
     }
     setLoading(false);
   }, [monthStr, selectedInstructorId]);
+
+  // Sync settlements from calendar on first mount
+  useEffect(() => {
+    if (hasSynced) return;
+    setHasSynced(true);
+    fetch('/api/settlements/sync', { method: 'POST' })
+      .then(() => fetchSettlements())
+      .catch(() => {});
+  }, [hasSynced, fetchSettlements]);
 
   useEffect(() => {
     fetchSettlements();

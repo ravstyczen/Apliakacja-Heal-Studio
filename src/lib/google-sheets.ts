@@ -185,6 +185,46 @@ export async function addSettlement(
   });
 }
 
+export async function deleteSettlementByDetails(
+  accessToken: string,
+  spreadsheetId: string,
+  date: string,
+  instructorId: string,
+  sessionType: string
+): Promise<void> {
+  const sheets = getSheetsClient(accessToken);
+  const settlements = await getSettlements(accessToken, spreadsheetId);
+  const rowIndex = settlements.findIndex(
+    (s) => s.date === date && s.instructorId === instructorId && s.sessionType === sessionType
+  );
+
+  if (rowIndex === -1) return;
+
+  const spreadsheet = await sheets.spreadsheets.get({ spreadsheetId });
+  const sheet = spreadsheet.data.sheets?.find(
+    (s) => s.properties?.title === SHEETS.SESSIONS
+  );
+  if (!sheet?.properties?.sheetId) return;
+
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId,
+    requestBody: {
+      requests: [
+        {
+          deleteDimension: {
+            range: {
+              sheetId: sheet.properties.sheetId,
+              dimension: 'ROWS',
+              startIndex: rowIndex + 1, // +1 for header
+              endIndex: rowIndex + 2,
+            },
+          },
+        },
+      ],
+    },
+  });
+}
+
 export async function getSettlements(
   accessToken: string,
   spreadsheetId: string,

@@ -200,7 +200,13 @@ export default function SessionModal({
 
     setDeleting(true);
     try {
-      await fetch(`/api/sessions?eventId=${existingSession.calendarEventId}`, {
+      const deleteParams = new URLSearchParams({
+        eventId: existingSession.calendarEventId,
+        date: existingSession.date,
+        instructorId: existingSession.instructorId,
+        sessionType: existingSession.type,
+      });
+      await fetch(`/api/sessions?${deleteParams}`, {
         method: 'DELETE',
       });
       onSaved();
@@ -214,10 +220,14 @@ export default function SessionModal({
     if (!existingSession) return;
     setDeleting(true);
     try {
-      await fetch(
-        `/api/sessions?eventId=${existingSession.calendarEventId}&editMode=${recurringEditMode}`,
-        { method: 'DELETE' }
-      );
+      const deleteParams = new URLSearchParams({
+        eventId: existingSession.calendarEventId,
+        editMode: recurringEditMode,
+        date: existingSession.date,
+        instructorId: existingSession.instructorId,
+        sessionType: existingSession.type,
+      });
+      await fetch(`/api/sessions?${deleteParams}`, { method: 'DELETE' });
       onSaved();
     } catch (e: any) {
       setError(e.message || 'Wystąpił błąd');
