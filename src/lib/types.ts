@@ -54,6 +54,7 @@ export interface Session {
 export interface Settlement {
   id: string;
   date: string;
+  time: string; // HH:mm
   sessionType: SessionType;
   instructorId: string;
   instructorName: string;

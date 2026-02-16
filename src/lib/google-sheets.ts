@@ -166,13 +166,14 @@ export async function addSettlement(
 
   await sheets.spreadsheets.values.append({
     spreadsheetId,
-    range: `${SHEETS.SESSIONS}!A:H`,
+    range: `${SHEETS.SESSIONS}!A:I`,
     valueInputOption: 'USER_ENTERED',
     requestBody: {
       values: [
         [
           id,
           settlement.date,
+          settlement.time || '',
           settlement.sessionType,
           settlement.instructorId,
           settlement.instructorName,
@@ -236,19 +237,20 @@ export async function getSettlements(
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId,
-      range: `${SHEETS.SESSIONS}!A2:H`,
+      range: `${SHEETS.SESSIONS}!A2:I`,
     });
 
     const rows = response.data.values || [];
     let settlements: Settlement[] = rows.map((row) => ({
       id: row[0] || '',
       date: row[1] || '',
-      sessionType: row[2] as any,
-      instructorId: row[3] || '',
-      instructorName: row[4] || '',
-      clientNames: (row[5] || '').split(', ').filter(Boolean),
-      price: Number(row[6]) || 0,
-      instructorShare: Number(row[7]) || 0,
+      time: row[2] || '',
+      sessionType: row[3] as any,
+      instructorId: row[4] || '',
+      instructorName: row[5] || '',
+      clientNames: (row[6] || '').split(', ').filter(Boolean),
+      price: Number(row[7]) || 0,
+      instructorShare: Number(row[8]) || 0,
     }));
 
     if (month) {
@@ -444,13 +446,14 @@ async function initializeSessionsSheet(
 
   await sheets.spreadsheets.values.update({
     spreadsheetId,
-    range: `${SHEETS.SESSIONS}!A1:H1`,
+    range: `${SHEETS.SESSIONS}!A1:I1`,
     valueInputOption: 'USER_ENTERED',
     requestBody: {
       values: [
         [
           'ID',
           'Data',
+          'Godzina',
           'Rodzaj sesji',
           'ID Instruktora',
           'Instruktor',

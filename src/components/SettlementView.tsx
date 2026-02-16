@@ -222,6 +222,7 @@ export default function SettlementView() {
                         <thead>
                           <tr className="text-gray-400">
                             <th className="py-2 text-left font-medium">Data</th>
+                            <th className="py-2 text-left font-medium">Godz.</th>
                             <th className="py-2 text-left font-medium">Rodzaj</th>
                             <th className="py-2 text-right font-medium">Cena</th>
                             <th className="py-2 text-right font-medium">Udział</th>
@@ -231,6 +232,7 @@ export default function SettlementView() {
                           {ms.sessions.map((s, idx) => (
                             <tr key={idx} className="border-t border-heal-light/50">
                               <td className="py-2 text-heal-dark">{s.date}</td>
+                              <td className="py-2 text-heal-dark">{s.time || '-'}</td>
                               <td className="py-2 text-heal-dark">{s.sessionType}</td>
                               <td className="py-2 text-right text-heal-dark">
                                 {s.price} zł
@@ -243,7 +245,7 @@ export default function SettlementView() {
                         </tbody>
                         <tfoot>
                           <tr className="border-t-2 border-heal-light font-semibold">
-                            <td className="py-2" colSpan={2}>
+                            <td className="py-2" colSpan={3}>
                               Razem
                             </td>
                             <td className="py-2 text-right">{ms.totalPrice} zł</td>

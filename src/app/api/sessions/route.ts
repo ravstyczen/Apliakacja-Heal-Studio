@@ -7,12 +7,26 @@ import {
   deleteCalendarEvent,
   getCalendarEvents,
 } from '@/lib/google-calendar';
-import { addSettlement, deleteSettlementByDetails } from '@/lib/google-sheets';
+import { addSettlement, deleteSettlementByDetails, getInstructorsFromSheet } from '@/lib/google-sheets';
 import { getInstructorById } from '@/lib/instructors-data';
-import { getSessionPrice, getSessionShare } from '@/lib/types';
+import { Instructor, getSessionPrice, getSessionShare } from '@/lib/types';
 
 const CALENDAR_ID = process.env.GOOGLE_CALENDAR_ID || 'primary';
 const SHEETS_ID = process.env.GOOGLE_SHEETS_ID || '';
+
+async function findInstructor(accessToken: string, instructorId: string): Promise<Instructor | undefined> {
+  // Read from sheet first (source of truth for pricing), fall back to hardcoded defaults
+  try {
+    if (SHEETS_ID) {
+      const sheetInstructors = await getInstructorsFromSheet(accessToken, SHEETS_ID);
+      const found = sheetInstructors.find((i) => i.id === instructorId);
+      if (found) return found;
+    }
+  } catch {
+    // Fall through to default
+  }
+  return getInstructorById(instructorId);
+}
 
 function getWeeklyDates(startDate: string, endDate: string): string[] {
   const dates: string[] = [];
@@ -72,11 +86,12 @@ export async function POST(request: NextRequest) {
 
     // Write settlement to Sesje sheet
     if (SHEETS_ID) {
-      const instructor = getInstructorById(body.instructorId);
+      const instructor = await findInstructor(accessToken, body.instructorId);
       if (instructor) {
         const price = getSessionPrice(instructor.pricing, body.type);
         const share = getSessionShare(instructor.pricing, body.type);
         const settlementBase = {
+          time: body.startTime || '',
           sessionType: body.type,
           instructorId: body.instructorId,
           instructorName: instructor.name,
