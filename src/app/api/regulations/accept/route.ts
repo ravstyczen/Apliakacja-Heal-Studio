@@ -18,18 +18,16 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Use service account or stored token for server-side operations
-    // For simplicity, we use a workaround - in production, use service account
     const serviceAuth = await getServiceAuth();
     if (!serviceAuth) {
+      console.error('Regulation acceptance: Service account authentication failed. Check GOOGLE_SERVICE_ACCOUNT_EMAIL and GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY env vars.');
       return new NextResponse(
         renderPage(
-          'Dziękujemy!',
-          `Dziękujemy za akceptację regulaminu Heal Pilates Studio!<br><br>
-           Twoja akceptacja została zarejestrowana.<br>
-           Do zobaczenia na zajęciach!`
+          'Błąd',
+          `Przepraszamy, wystąpił problem techniczny z rejestracją akceptacji.<br><br>
+           Prosimy o kontakt ze studiem w celu potwierdzenia akceptacji regulaminu.`
         ),
-        { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+        { status: 500, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
       );
     }
 
@@ -40,6 +38,18 @@ export async function GET(request: NextRequest) {
       return new NextResponse(
         renderPage('Błąd', 'Nie znaleziono klienta.'),
         { status: 404, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+      );
+    }
+
+    if (client.regulationsAccepted) {
+      return new NextResponse(
+        renderPage(
+          'Regulamin już zaakceptowany',
+          `<strong>${client.firstName}</strong>, regulamin został już wcześniej zaakceptowany.<br><br>
+           Data akceptacji: <strong>${client.regulationsAcceptedDate}</strong><br><br>
+           Do zobaczenia na zajęciach!`
+        ),
+        { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
       );
     }
 
@@ -75,10 +85,11 @@ export async function GET(request: NextRequest) {
     console.error('Regulation acceptance error:', error);
     return new NextResponse(
       renderPage(
-        'Dziękujemy!',
-        'Dziękujemy za akceptację regulaminu Heal Pilates Studio!<br>Do zobaczenia na zajęciach!'
+        'Błąd',
+        `Przepraszamy, wystąpił problem z rejestracją akceptacji regulaminu.<br><br>
+         Prosimy o kontakt ze studiem.`
       ),
-      { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+      { status: 500, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
     );
   }
 }

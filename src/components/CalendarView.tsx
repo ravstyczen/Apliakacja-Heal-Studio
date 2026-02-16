@@ -213,8 +213,10 @@ export default function CalendarView() {
                             {s.instructorName?.split(' ')[0]}
                           </div>
                           {Array.isArray(s.clientNames) && s.clientNames.length > 0 && (
-                            <div className="text-[7px] opacity-60 truncate leading-tight">
-                              {s.clientNames.join(', ')}
+                            <div className="text-[7px] opacity-60 leading-tight">
+                              {s.clientNames.map((name, i) => (
+                                <div key={i} className="truncate">{name}</div>
+                              ))}
                             </div>
                           )}
                         </div>
