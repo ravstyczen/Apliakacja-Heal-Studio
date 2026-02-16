@@ -132,13 +132,14 @@ export async function sendRegulationsEmail(
 
             <h4 style="color:#2C3E2D; font-size:14px; margin:16px 0 8px;">Regulamin korzystania i dokonywania rezerwacji sesji</h4>
             <ul style="padding-left:20px;">
-              <li>Niniejszy regulamin określa zasady korzystania z usług Heal Pilates Studio, w tym dokonywania rezerwacji sesji oraz warunki uczestnictwa w zajęciach. Korzystanie z usług studia oznacza akceptację niniejszego regulaminu.</li>
-              <li>Studio prowadzi zajęcia metodą Pilates Klasyczny w formie sesji indywidualnych oraz grupowych.</li>
+              <li>Niniejszy regulamin określa zasady korzystania z usług Heal Pilates Studio, w tym dokonywania rezerwacji sesji oraz warunki uczestnictwa w zajęciach.</li>
+              <li>Korzystanie z usług studia oznacza akceptację niniejszego regulaminu.</li>
+              <li>Studio prowadzi zajęcia metodą Pilates Klasyczny formie sesji indywidualnych oraz grupowych.</li>
             </ul>
 
             <h4 style="color:#2C3E2D; font-size:14px; margin:16px 0 8px;">Rodzaje sesji</h4>
             <ul style="padding-left:20px;">
-              <li><strong>Sesje Indywidualne</strong> – sesje prowadzone wyłącznie dla jednej osoby.</li>
+              <li><strong>Sesje Indywidualne</strong> – sesje prowadzone dla wyłącznie dla jednej osoby.</li>
               <li><strong>Sesje Duo</strong> – sesje grupowe prowadzone dla dwóch osób.</li>
               <li><strong>Sesje Trio</strong> – sesje grupowe prowadzone dla trzech osób.</li>
             </ul>
@@ -149,14 +150,14 @@ export async function sendRegulationsEmail(
               <li>Rezerwacji sesji można dokonać telefonicznie, komunikatorem u instruktora lub osobiście w siedzibie studia, w razie nieobecności instruktora sesję można rezerwować i odwoływać u instruktora pełniącego zastępstwo.</li>
               <li>Odwołanie sesji bez opłaty możliwe jest do 24 godzin przed rozpoczęciem zajęć.</li>
               <li>W przypadku rezygnacji po tym czasie pełna opłata za zajęcia jest wymagana.</li>
-              <li>Studio dokona wszelkich starań, celem odbycia sesji w przypadku choroby lub nieobecności instruktora. Wówczas jego pracę przejmie inny instruktor, o równym stopniu profesjonalizmu. Studio zastrzega sobie jednak prawo do odwołania zajęć z przyczyn niezależnych, o czym niezwłocznie poinformuje uczestników.</li>
+              <li>Studio dokona wszelkich starań, celem odbycia sesji w przypadku choroby lub nieobecności instruktora. Wówczas jego prace przejmie inny instruktor, o równym stopniu profesjonalizmu. Studio zastrzega sobie jednak prawo do odwołania zajęć z przyczyn niezależnych, o czym niezwłocznie poinformuje uczestników.</li>
             </ul>
 
             <h4 style="color:#2C3E2D; font-size:14px; margin:16px 0 8px;">Ceny i płatności</h4>
             <ul style="padding-left:20px;">
               <li>Ceny sesji zależą od instruktora prowadzącego i określone są w odrębnym cenniku.</li>
               <li>Płatności można dokonywać gotówką, BLIK-iem (na nr telefonu 696567234) lub kartą płatniczą na miejscu.</li>
-              <li>Brak płatności za zarezerwowaną sesję uniemożliwia dokonywanie kolejnych rezerwacji.</li>
+              <li>Brak płatności za zarezerwowaną sesję uniemożliwia dokonywania kolejnych rezerwacji.</li>
             </ul>
 
             <h4 style="color:#2C3E2D; font-size:14px; margin:16px 0 8px;">Zasady uczestnictwa</h4>
