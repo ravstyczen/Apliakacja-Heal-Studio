@@ -127,17 +127,52 @@ export async function sendRegulationsEmail(
           <p>Dziękujemy za zainteresowanie zajęciami w Heal Pilates Studio. Przed rozpoczęciem ćwiczeń prosimy o zapoznanie się z regulaminem studia i jego akceptację.</p>
 
           <div class="regulations">
-            <h3>Regulamin Heal Pilates Studio</h3>
+            <h3>Heal Pilates Studio – Regulamin</h3>
+            <p style="font-size:13px; color:#555; margin-bottom:12px;">Adres: ul. Stanisława Kostki-Potockiego 2/1, 02-958 Warszawa</p>
+
+            <h4 style="color:#2C3E2D; font-size:14px; margin:16px 0 8px;">Regulamin korzystania i dokonywania rezerwacji sesji</h4>
             <ol>
-              <li><strong>Rezerwacje i odwoływanie sesji:</strong> Sesje należy rezerwować z wyprzedzeniem. Odwołanie sesji jest możliwe najpóźniej 24 godziny przed planowanym terminem. W przypadku późniejszego odwołania lub nieobecności, sesja jest traktowana jako odbyta.</li>
-              <li><strong>Punktualność:</strong> Prosimy o przybycie 5-10 minut przed planowaną sesją. Spóźnienie powoduje skrócenie czasu treningu bez zmiany jego ceny.</li>
-              <li><strong>Zdrowie i bezpieczeństwo:</strong> Klient zobowiązany jest poinformować instruktora o wszelkich dolegliwościach zdrowotnych, kontuzjach lub ciąży przed rozpoczęciem sesji.</li>
-              <li><strong>Strój i higiena:</strong> Na zajęcia należy przybyć w wygodnym stroju sportowym. Ćwiczymy w skarpetkach lub boso. Prosimy o zachowanie higieny osobistej.</li>
-              <li><strong>Płatności:</strong> Płatność za sesje dokonywana jest zgodnie z obowiązującym cennikiem. Cennik może ulec zmianie z miesięcznym wyprzedzeniem.</li>
-              <li><strong>Odpowiedzialność:</strong> Studio nie ponosi odpowiedzialności za rzeczy wartościowe pozostawione na terenie studia. Klient ćwiczy na własną odpowiedzialność.</li>
-              <li><strong>Dane osobowe:</strong> Dane osobowe klientów są przetwarzane zgodnie z RODO w celu realizacji usług studia.</li>
-              <li><strong>Postanowienia końcowe:</strong> Studio zastrzega sobie prawo do zmiany regulaminu. O zmianach klienci zostaną poinformowani drogą mailową.</li>
+              <li>Niniejszy regulamin określa zasady korzystania z usług Heal Pilates Studio, w tym dokonywania rezerwacji sesji oraz warunki uczestnictwa w zajęciach.</li>
+              <li>Korzystanie z usług studia oznacza akceptację niniejszego regulaminu.</li>
+              <li>Studio prowadzi zajęcia metodą Pilates Klasyczny w formie sesji indywidualnych oraz grupowych.</li>
             </ol>
+
+            <h4 style="color:#2C3E2D; font-size:14px; margin:16px 0 8px;">Rodzaje sesji</h4>
+            <ul style="padding-left:20px;">
+              <li><strong>Sesje Indywidualne</strong> – sesje prowadzone wyłącznie dla jednej osoby.</li>
+              <li><strong>Sesje Duo</strong> – sesje grupowe prowadzone dla dwóch osób.</li>
+              <li><strong>Sesje Trio</strong> – sesje grupowe prowadzone dla trzech osób.</li>
+            </ul>
+            <p style="font-size:14px;">Zajęcia prowadzone są przez wykwalifikowanych nauczycieli metody Pilates.</p>
+
+            <h4 style="color:#2C3E2D; font-size:14px; margin:16px 0 8px;">Rezerwacje i rezygnacje</h4>
+            <ul style="padding-left:20px;">
+              <li>Rezerwacji sesji można dokonać telefonicznie, komunikatorem u instruktora lub osobiście w siedzibie studia, w razie nieobecności instruktora sesję można rezerwować i odwoływać u instruktora pełniącego zastępstwo.</li>
+              <li>Odwołanie sesji bez opłaty możliwe jest do 24 godzin przed rozpoczęciem zajęć.</li>
+              <li>W przypadku rezygnacji po tym czasie pełna opłata za zajęcia jest wymagana.</li>
+              <li>Studio dokona wszelkich starań, celem odbycia sesji w przypadku choroby lub nieobecności instruktora. Wówczas jego pracę przejmie inny instruktor, o równym stopniu profesjonalizmu. Studio zastrzega sobie jednak prawo do odwołania zajęć z przyczyn niezależnych, o czym niezwłocznie poinformuje uczestników.</li>
+            </ul>
+
+            <h4 style="color:#2C3E2D; font-size:14px; margin:16px 0 8px;">Ceny i płatności</h4>
+            <ul style="padding-left:20px;">
+              <li>Ceny sesji zależą od instruktora prowadzącego i określone są w odrębnym cenniku.</li>
+              <li>Płatności można dokonywać gotówką, BLIK-iem (na nr telefonu 696567234) lub kartą płatniczą na miejscu.</li>
+              <li>Brak płatności za zarezerwowaną sesję uniemożliwia dokonywanie kolejnych rezerwacji.</li>
+            </ul>
+
+            <h4 style="color:#2C3E2D; font-size:14px; margin:16px 0 8px;">Zasady uczestnictwa</h4>
+            <ul style="padding-left:20px;">
+              <li>Uczestnik zobowiązany jest do punktualnego przybycia na zajęcia w odpowiednim do ich wykonywania stroju.</li>
+              <li>W przypadku spóźnienia, czas zajęć nie ulega wydłużeniu.</li>
+              <li>Uczestnik zobowiązany jest do informowania instruktora na bieżąco o wszelkich problemach zdrowotnych, w tym kontuzjach, chorobach.</li>
+              <li>Studio nie ponosi odpowiedzialności za urazy wynikłe z zatajenia informacji o stanie zdrowia.</li>
+            </ul>
+
+            <h4 style="color:#2C3E2D; font-size:14px; margin:16px 0 8px;">Odpowiedzialność</h4>
+            <ul style="padding-left:20px;">
+              <li>Uczestnicy korzystają z usług Heal Pilates Studio na własną odpowiedzialność, zgodnie ze wskazaniami zdrowotnymi.</li>
+              <li>Studio dokłada starań, by zapewnić bezpieczeństwo, jednak nie ponosi odpowiedzialności za rzeczy pozostawione w studiu.</li>
+            </ul>
           </div>
 
           <p>Klikając poniższy przycisk, akceptujesz powyższy regulamin Heal Pilates Studio.</p>
@@ -147,7 +182,7 @@ export async function sendRegulationsEmail(
           </div>
         </div>
         <div class="footer">
-          <p>Heal Pilates Studio<br>ul. St. Kostki Potockiego 2/1, 02-958 Warszawa</p>
+          <p>Heal Pilates Studio<br>ul. Stanisława Kostki-Potockiego 2/1, 02-958 Warszawa</p>
         </div>
       </div>
     </body>
