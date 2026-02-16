@@ -131,11 +131,10 @@ export async function sendRegulationsEmail(
             <p style="font-size:13px; color:#555; margin-bottom:12px;">Adres: ul. Stanisława Kostki-Potockiego 2/1, 02-958 Warszawa</p>
 
             <h4 style="color:#2C3E2D; font-size:14px; margin:16px 0 8px;">Regulamin korzystania i dokonywania rezerwacji sesji</h4>
-            <ol>
-              <li>Niniejszy regulamin określa zasady korzystania z usług Heal Pilates Studio, w tym dokonywania rezerwacji sesji oraz warunki uczestnictwa w zajęciach.</li>
-              <li>Korzystanie z usług studia oznacza akceptację niniejszego regulaminu.</li>
+            <ul style="padding-left:20px;">
+              <li>Niniejszy regulamin określa zasady korzystania z usług Heal Pilates Studio, w tym dokonywania rezerwacji sesji oraz warunki uczestnictwa w zajęciach. Korzystanie z usług studia oznacza akceptację niniejszego regulaminu.</li>
               <li>Studio prowadzi zajęcia metodą Pilates Klasyczny w formie sesji indywidualnych oraz grupowych.</li>
-            </ol>
+            </ul>
 
             <h4 style="color:#2C3E2D; font-size:14px; margin:16px 0 8px;">Rodzaje sesji</h4>
             <ul style="padding-left:20px;">
