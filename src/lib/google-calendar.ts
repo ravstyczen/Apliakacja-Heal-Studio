@@ -174,17 +174,27 @@ export async function getCalendarEvents(
 ): Promise<Session[]> {
   const calendar = getCalendarClient(accessToken);
 
-  const response = await calendar.events.list({
-    calendarId,
-    timeMin: new Date(timeMin).toISOString(),
-    timeMax: new Date(timeMax).toISOString(),
-    singleEvents: true,
-    orderBy: 'startTime',
-  });
+  // Fetch all pages of events
+  let allItems: calendar_v3.Schema$Event[] = [];
+  let pageToken: string | undefined;
 
-  const events = response.data.items || [];
+  do {
+    const response = await calendar.events.list({
+      calendarId,
+      timeMin: new Date(timeMin).toISOString(),
+      timeMax: new Date(timeMax).toISOString(),
+      singleEvents: true,
+      orderBy: 'startTime',
+      maxResults: 2500,
+      pageToken,
+    });
 
-  return events
+    const items = response.data.items || [];
+    allItems = allItems.concat(items);
+    pageToken = response.data.nextPageToken || undefined;
+  } while (pageToken);
+
+  return allItems
     .filter((event) => event.extendedProperties?.private?.sessionType)
     .map((event) => {
       const props = event.extendedProperties!.private!;

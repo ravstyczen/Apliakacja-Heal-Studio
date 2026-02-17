@@ -18,15 +18,16 @@ export async function POST() {
   const accessToken = (session as any).accessToken;
 
   try {
-    // Read past calendar events (last 6 months up to now)
-    const now = new Date();
+    // Read calendar events (last 6 months + 3 months ahead)
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    const threeMonthsAhead = new Date();
+    threeMonthsAhead.setMonth(threeMonthsAhead.getMonth() + 3);
 
     const calendarEvents = await getCalendarEvents(
       accessToken,
       sixMonthsAgo.toISOString(),
-      now.toISOString(),
+      threeMonthsAhead.toISOString(),
       CALENDAR_ID
     );
 

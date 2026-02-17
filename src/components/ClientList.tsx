@@ -49,6 +49,12 @@ export default function ClientList() {
     fetchClients();
   }, [fetchClients]);
 
+  // Poll for changes every 30 seconds so updates by other users are visible
+  useEffect(() => {
+    const interval = setInterval(() => fetchClients(), 30_000);
+    return () => clearInterval(interval);
+  }, [fetchClients]);
+
   // Refetch when app becomes visible (e.g. switching between devices/apps)
   useEffect(() => {
     const handleVisibility = () => {

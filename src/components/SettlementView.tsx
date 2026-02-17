@@ -61,6 +61,12 @@ export default function SettlementView() {
     fetchSettlements();
   }, [fetchSettlements, hasSynced]);
 
+  // Poll for changes every 30 seconds so updates by other users are visible
+  useEffect(() => {
+    const interval = setInterval(() => fetchSettlements(), 30_000);
+    return () => clearInterval(interval);
+  }, [fetchSettlements]);
+
   // Refetch when app becomes visible (e.g. switching between devices/apps)
   useEffect(() => {
     const handleVisibility = () => {
