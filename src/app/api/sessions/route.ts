@@ -160,12 +160,19 @@ export async function DELETE(request: NextRequest) {
   }
 
   // Also get session details from query params for settlement deletion
+  const editMode = searchParams.get('editMode') as 'single' | 'future' | 'all' | null;
   const date = searchParams.get('date');
   const instructorId = searchParams.get('instructorId');
   const sessionType = searchParams.get('sessionType');
 
   try {
-    await deleteCalendarEvent(accessToken, eventId, CALENDAR_ID);
+    await deleteCalendarEvent(
+      accessToken,
+      eventId,
+      CALENDAR_ID,
+      editMode || undefined,
+      date || undefined
+    );
 
     // Remove corresponding settlement entry
     if (SHEETS_ID && date && instructorId && sessionType) {

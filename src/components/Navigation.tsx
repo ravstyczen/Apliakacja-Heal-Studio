@@ -16,7 +16,9 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
   const tabs = [
     { id: 'calendar', label: 'Kalendarz', icon: CalendarIcon },
     { id: 'clients', label: 'Klienci', icon: UsersIcon },
-    { id: 'settlements', label: 'Rozliczenia', icon: ChartIcon },
+    ...(showInstructors
+      ? [{ id: 'settlements', label: 'Rozliczenia', icon: ChartIcon }]
+      : []),
     ...(showInstructors
       ? [{ id: 'instructors', label: 'Instruktorzy', icon: SettingsIcon }]
       : []),

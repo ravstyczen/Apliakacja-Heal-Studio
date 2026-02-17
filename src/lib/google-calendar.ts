@@ -1,5 +1,5 @@
 import { google, calendar_v3 } from 'googleapis';
-import { Session, SessionType, getCalendarEventTitle } from './types';
+import { Session, SessionType, RecurringEditMode, getCalendarEventTitle } from './types';
 import { getInstructorById } from './instructors-data';
 
 // Google Calendar color IDs mapping (approximate)
@@ -127,13 +127,43 @@ export async function updateCalendarEvent(
 export async function deleteCalendarEvent(
   accessToken: string,
   eventId: string,
-  calendarId: string = 'primary'
+  calendarId: string = 'primary',
+  editMode?: RecurringEditMode,
+  instanceDate?: string
 ): Promise<void> {
   const calendar = getCalendarClient(accessToken);
-  await calendar.events.delete({
-    calendarId,
-    eventId,
-  });
+
+  if (editMode === 'all') {
+    // Delete the entire recurring series — use base event ID
+    const baseId = eventId.replace(/_\d{8}T\d{6}Z$/, '');
+    await calendar.events.delete({ calendarId, eventId: baseId });
+  } else if (editMode === 'future' && instanceDate) {
+    // End the recurrence just before this instance
+    const baseId = eventId.replace(/_\d{8}T\d{6}Z$/, '');
+    const untilDate = new Date(instanceDate);
+    untilDate.setDate(untilDate.getDate() - 1);
+    const until = untilDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+
+    const existing = await calendar.events.get({ calendarId, eventId: baseId });
+    const recurrence = existing.data.recurrence || [];
+    const updatedRecurrence = recurrence.map((rule) => {
+      // Replace existing UNTIL or add one
+      if (rule.startsWith('RRULE:')) {
+        const withoutUntil = rule.replace(/;UNTIL=[^;]+/, '');
+        return `${withoutUntil};UNTIL=${until}`;
+      }
+      return rule;
+    });
+
+    await calendar.events.patch({
+      calendarId,
+      eventId: baseId,
+      requestBody: { recurrence: updatedRecurrence },
+    });
+  } else {
+    // Single instance or non-recurring — delete the specific event ID
+    await calendar.events.delete({ calendarId, eventId });
+  }
 }
 
 export async function getCalendarEvents(

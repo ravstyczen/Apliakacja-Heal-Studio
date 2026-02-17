@@ -23,8 +23,8 @@ export default function CalendarView() {
 
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
-  const fetchSessions = useCallback(async () => {
-    setLoading(true);
+  const fetchSessions = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const timeMin = format(weekStart, 'yyyy-MM-dd');
       const timeMax = format(addDays(weekStart, 7), 'yyyy-MM-dd');
@@ -36,11 +36,17 @@ export default function CalendarView() {
     } catch (error) {
       console.error('Failed to fetch sessions:', error);
     }
-    setLoading(false);
+    if (!silent) setLoading(false);
   }, [weekStart]);
 
   useEffect(() => {
     fetchSessions();
+  }, [fetchSessions]);
+
+  // Poll for changes every 30 seconds so updates by other instructors are visible
+  useEffect(() => {
+    const interval = setInterval(() => fetchSessions(true), 30_000);
+    return () => clearInterval(interval);
   }, [fetchSessions]);
 
   const navigateWeek = (direction: number) => {
