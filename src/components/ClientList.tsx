@@ -5,6 +5,20 @@ import { useSession } from 'next-auth/react';
 import { Client, Instructor, isOwnerOrAdmin } from '@/lib/types';
 import ClientFormModal from './ClientFormModal';
 
+function formatPhone(phone: string): string {
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length === 9) {
+    return `+48 ${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6)}`;
+  }
+  if (digits.length === 11 && digits.startsWith('48')) {
+    return `+48 ${digits.slice(2, 5)} ${digits.slice(5, 8)} ${digits.slice(8)}`;
+  }
+  if (digits.length === 12 && digits.startsWith('048')) {
+    return `+48 ${digits.slice(3, 6)} ${digits.slice(6, 9)} ${digits.slice(9)}`;
+  }
+  return phone;
+}
+
 export default function ClientList() {
   const { data: session } = useSession();
   const instructor = (session as any)?.instructor as Instructor | null;
@@ -166,7 +180,7 @@ export default function ClientList() {
                     </div>
 
                     {client.phone && (
-                      <p className="text-xs text-gray-400 mt-0.5">{client.phone}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{formatPhone(client.phone)}</p>
                     )}
                     {client.email && (
                       <p className="text-xs text-gray-400">{client.email}</p>
