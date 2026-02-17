@@ -28,7 +28,7 @@ export default function CalendarView() {
     try {
       const timeMin = format(weekStart, 'yyyy-MM-dd');
       const timeMax = format(addDays(weekStart, 7), 'yyyy-MM-dd');
-      const res = await fetch(`/api/sessions?timeMin=${timeMin}&timeMax=${timeMax}`);
+      const res = await fetch(`/api/sessions?timeMin=${timeMin}&timeMax=${timeMax}`, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         setSessions(data);
@@ -47,6 +47,17 @@ export default function CalendarView() {
   useEffect(() => {
     const interval = setInterval(() => fetchSessions(true), 30_000);
     return () => clearInterval(interval);
+  }, [fetchSessions]);
+
+  // Refetch when app becomes visible (e.g. switching between devices/apps)
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        fetchSessions(true);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, [fetchSessions]);
 
   const navigateWeek = (direction: number) => {

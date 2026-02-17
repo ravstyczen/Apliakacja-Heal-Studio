@@ -39,7 +39,9 @@ export async function GET(request: NextRequest) {
         month,
         filterInstructorId
       );
-      return NextResponse.json(data);
+      return NextResponse.json(data, {
+        headers: { 'Cache-Control': 'no-store, must-revalidate' },
+      });
     }
 
     const settlements = await getSettlements(
@@ -48,7 +50,9 @@ export async function GET(request: NextRequest) {
       month,
       filterInstructorId
     );
-    return NextResponse.json(settlements);
+    return NextResponse.json(settlements, {
+      headers: { 'Cache-Control': 'no-store, must-revalidate' },
+    });
   } catch (error: any) {
     return NextResponse.json(
       { error: error.message || 'Failed to fetch settlements' },

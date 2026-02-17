@@ -34,7 +34,7 @@ export default function SettlementView() {
       if (selectedInstructorId) {
         url += `&instructorId=${selectedInstructorId}`;
       }
-      const res = await fetch(url);
+      const res = await fetch(url, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         setMonthlyData(data);
@@ -45,17 +45,31 @@ export default function SettlementView() {
     setLoading(false);
   }, [monthStr, selectedInstructorId]);
 
-  // Sync settlements from calendar on first mount
+  // Sync settlements from calendar on first mount, then fetch
   useEffect(() => {
     if (hasSynced) return;
     setHasSynced(true);
+    setLoading(true);
     fetch('/api/settlements/sync', { method: 'POST' })
       .then(() => fetchSettlements())
-      .catch(() => {});
+      .catch(() => fetchSettlements());
   }, [hasSynced, fetchSettlements]);
 
+  // Refetch when month or instructor filter changes (skip initial render until sync is done)
   useEffect(() => {
+    if (!hasSynced) return;
     fetchSettlements();
+  }, [fetchSettlements, hasSynced]);
+
+  // Refetch when app becomes visible (e.g. switching between devices/apps)
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        fetchSettlements();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, [fetchSettlements]);
 
   const navigateMonth = (direction: number) => {

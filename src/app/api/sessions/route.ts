@@ -59,7 +59,9 @@ export async function GET(request: NextRequest) {
       timeMax,
       CALENDAR_ID
     );
-    return NextResponse.json(events);
+    return NextResponse.json(events, {
+      headers: { 'Cache-Control': 'no-store, must-revalidate' },
+    });
   } catch (error: any) {
     return NextResponse.json(
       { error: error.message || 'Failed to fetch sessions' },

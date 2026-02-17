@@ -29,7 +29,9 @@ export async function GET() {
       clients = clients.filter((c) => !c.isOwnerClient);
     }
 
-    return NextResponse.json(clients);
+    return NextResponse.json(clients, {
+      headers: { 'Cache-Control': 'no-store, must-revalidate' },
+    });
   } catch (error: any) {
     return NextResponse.json(
       { error: error.message || 'Failed to fetch clients' },

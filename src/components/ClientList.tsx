@@ -34,7 +34,7 @@ export default function ClientList() {
   const fetchClients = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/clients');
+      const res = await fetch('/api/clients', { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         setClients(data);
@@ -49,15 +49,32 @@ export default function ClientList() {
     fetchClients();
   }, [fetchClients]);
 
-  const filteredClients = clients.filter((c) => {
-    const matchesSearch = `${c.firstName} ${c.lastName}`
-      .toLowerCase()
-      .includes(search.toLowerCase());
+  // Refetch when app becomes visible (e.g. switching between devices/apps)
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        fetchClients();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [fetchClients]);
 
-    if (filter === 'accepted') return matchesSearch && c.regulationsAccepted;
-    if (filter === 'pending') return matchesSearch && !c.regulationsAccepted;
-    return matchesSearch;
-  });
+  const filteredClients = clients
+    .filter((c) => {
+      const matchesSearch = `${c.firstName} ${c.lastName}`
+        .toLowerCase()
+        .includes(search.toLowerCase());
+
+      if (filter === 'accepted') return matchesSearch && c.regulationsAccepted;
+      if (filter === 'pending') return matchesSearch && !c.regulationsAccepted;
+      return matchesSearch;
+    })
+    .sort((a, b) => {
+      const nameA = `${a.lastName} ${a.firstName}`.toLowerCase();
+      const nameB = `${b.lastName} ${b.firstName}`.toLowerCase();
+      return nameA.localeCompare(nameB, 'pl');
+    });
 
   const handleDelete = async (clientId: string) => {
     if (!confirm('Czy na pewno chcesz usunąć tego klienta?')) return;

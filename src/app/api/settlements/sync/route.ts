@@ -42,26 +42,21 @@ export async function POST() {
       return sheetInstructors.find((i) => i.id === instructorId) || getInstructorById(instructorId);
     };
 
-    // Only sync past events (sessions that have already occurred)
-    const pastEvents = calendarEvents.filter((event) => {
-      const eventEnd = new Date(`${event.date}T${event.endTime}:00`);
-      return eventEnd < now;
+    // Include all events (past and future) so settlements are always visible
+    const validEvents = calendarEvents.filter((event) => {
+      return event.instructorId && event.type;
     });
 
-    // Clear all existing settlement data and re-write from calendar
-    // This ensures correct column alignment after schema changes
-    await clearSettlements(accessToken, SHEETS_ID);
-
-    let added = 0;
-
-    for (const event of pastEvents) {
+    // Build settlement data before clearing to avoid data loss on errors
+    const settlementsToWrite: Array<Omit<import('@/lib/types').Settlement, 'id'>> = [];
+    for (const event of validEvents) {
       const instructor = findInstructor(event.instructorId);
       if (!instructor) continue;
 
       const price = getSessionPrice(instructor.pricing, event.type);
       const share = getSessionShare(instructor.pricing, event.type);
 
-      await addSettlement(accessToken, SHEETS_ID, {
+      settlementsToWrite.push({
         date: event.date,
         time: event.startTime,
         sessionType: event.type,
@@ -71,11 +66,17 @@ export async function POST() {
         price,
         instructorShare: share,
       });
-
-      added++;
     }
 
-    return NextResponse.json({ synced: added, total: pastEvents.length });
+    // Only clear and re-write if we have data (prevent accidental wipe)
+    if (settlementsToWrite.length > 0) {
+      await clearSettlements(accessToken, SHEETS_ID);
+      for (const settlement of settlementsToWrite) {
+        await addSettlement(accessToken, SHEETS_ID, settlement);
+      }
+    }
+
+    return NextResponse.json({ synced: settlementsToWrite.length, total: validEvents.length });
   } catch (error: any) {
     return NextResponse.json(
       { error: error.message || 'Failed to sync settlements' },
