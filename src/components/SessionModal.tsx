@@ -449,12 +449,12 @@ export default function SessionModal({
                         {signup.firstName.charAt(0)}{signup.lastName.charAt(0)}
                       </div>
                       <div className="min-w-0">
-                        <span className="text-sm font-medium text-heal-dark block">
+                        <span className="text-sm font-medium text-heal-dark block" data-x-apple-data-detectors="false">
                           {signup.firstName} {signup.lastName}
                         </span>
-                        <span className="text-xs text-gray-400 block truncate">
+                        <a href={`mailto:${signup.email}`} className="text-xs text-heal-primary/70 block truncate underline">
                           {signup.email}
-                        </span>
+                        </a>
                       </div>
                     </div>
                   </div>
