@@ -74,10 +74,14 @@ export async function GET(request: NextRequest) {
             if (event.isOpenSession) {
               const booking = bookingsByEventId.get(event.calendarEventId);
               if (booking && booking.signups.length > 0) {
-                const bookingNames = booking.signups.map(
+                event.clientNames = booking.signups.map(
                   (s) => `${s.firstName} ${s.lastName}`
                 );
-                event.clientNames = bookingNames;
+                event.bookingSignups = booking.signups.map((s) => ({
+                  firstName: s.firstName,
+                  lastName: s.lastName,
+                  email: s.email,
+                }));
               }
             }
           }

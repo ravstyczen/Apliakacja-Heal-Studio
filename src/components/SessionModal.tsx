@@ -433,42 +433,74 @@ export default function SessionModal({
           {/* Clients */}
           <div className="mb-5">
             <label className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 block">
-              Klienci ({selectedClients.length}/{maxClients})
+              Klienci ({isOpenSession && existingSession?.bookingSignups ? existingSession.bookingSignups.length : selectedClients.length}/{maxClients})
             </label>
-            <div className="space-y-2">
-              {selectedClients.map((client) => (
-                <div
-                  key={client.id}
-                  className="flex items-center justify-between bg-heal-light rounded-xl px-4 py-3"
-                >
-                  <span className="text-sm font-medium">
-                    {client.firstName} {client.lastName}
-                  </span>
-                  <button
-                    onClick={() => removeClient(client.id)}
-                    className="text-gray-400 hover:text-red-500"
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <line x1="18" y1="6" x2="6" y2="18" />
-                      <line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                  </button>
-                </div>
-              ))}
 
-              {selectedClients.length < maxClients && (
-                <button
-                  onClick={() => setShowClientPicker(true)}
-                  className="w-full flex items-center justify-center gap-2 bg-heal-light rounded-xl px-4 py-3 text-sm text-gray-500 border-2 border-dashed border-gray-200"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <line x1="12" y1="5" x2="12" y2="19" />
-                    <line x1="5" y1="12" x2="19" y2="12" />
-                  </svg>
-                  Dodaj klienta
-                </button>
-              )}
-            </div>
+            {/* Booking signups for open sessions */}
+            {isOpenSession && existingSession?.bookingSignups && existingSession.bookingSignups.length > 0 ? (
+              <div className="space-y-2">
+                {existingSession.bookingSignups.map((signup, idx) => (
+                  <div
+                    key={idx}
+                    className="bg-heal-light rounded-xl px-4 py-3"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-full bg-heal-primary/10 flex items-center justify-center text-heal-primary font-semibold text-[10px] shrink-0">
+                        {signup.firstName.charAt(0)}{signup.lastName.charAt(0)}
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-sm font-medium text-heal-dark block">
+                          {signup.firstName} {signup.lastName}
+                        </span>
+                        <span className="text-xs text-gray-400 block truncate">
+                          {signup.email}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {existingSession.bookingSignups.length < maxClients && (
+                  <p className="text-xs text-gray-400 text-center py-1">
+                    Oczekiwanie na zapisy ({maxClients - existingSession.bookingSignups.length} wolne)
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {selectedClients.map((client) => (
+                  <div
+                    key={client.id}
+                    className="flex items-center justify-between bg-heal-light rounded-xl px-4 py-3"
+                  >
+                    <span className="text-sm font-medium">
+                      {client.firstName} {client.lastName}
+                    </span>
+                    <button
+                      onClick={() => removeClient(client.id)}
+                      className="text-gray-400 hover:text-red-500"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+
+                {selectedClients.length < maxClients && !isOpenSession && (
+                  <button
+                    onClick={() => setShowClientPicker(true)}
+                    className="w-full flex items-center justify-center gap-2 bg-heal-light rounded-xl px-4 py-3 text-sm text-gray-500 border-2 border-dashed border-gray-200"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <line x1="12" y1="5" x2="12" y2="19" />
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                    Dodaj klienta
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Recurring */}

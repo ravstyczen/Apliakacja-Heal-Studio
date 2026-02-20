@@ -51,6 +51,7 @@ export interface Session {
   recurringEndDate: string | null; // ISO date string
   isOpenSession: boolean;
   bookingToken: string | null;
+  bookingSignups?: Array<{ firstName: string; lastName: string; email: string }>;
 }
 
 export interface Settlement {
