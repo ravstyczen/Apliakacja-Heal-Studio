@@ -126,6 +126,28 @@ export async function updateCalendarEvent(
   });
 }
 
+export async function updateCalendarEventClients(
+  accessToken: string,
+  eventId: string,
+  clientNames: string[],
+  calendarId: string = 'primary'
+): Promise<void> {
+  const calendar = getCalendarClient(accessToken);
+
+  await calendar.events.patch({
+    calendarId,
+    eventId,
+    requestBody: {
+      description: `Klienci: ${clientNames.join(', ') || 'Brak'}`,
+      extendedProperties: {
+        private: {
+          clientNames: JSON.stringify(clientNames),
+        },
+      },
+    },
+  });
+}
+
 export async function deleteCalendarEvent(
   accessToken: string,
   eventId: string,

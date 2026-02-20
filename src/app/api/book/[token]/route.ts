@@ -3,15 +3,16 @@ import { getServiceAuth } from '@/lib/service-auth';
 import {
   getBookingByToken,
   addBookingSignup,
-  addClient,
   BookingSignup,
 } from '@/lib/google-sheets';
+import { updateCalendarEventClients } from '@/lib/google-calendar';
 import {
   sendBookingConfirmation,
   sendSessionFullEmail,
 } from '@/lib/email';
 
 const SHEETS_ID = process.env.GOOGLE_SHEETS_ID || '';
+const CALENDAR_ID = process.env.GOOGLE_CALENDAR_ID || 'primary';
 
 export async function GET(
   _request: NextRequest,
@@ -143,19 +144,22 @@ export async function POST(
     );
   }
 
-  // Add as a client to the Klienci sheet
+  // Update the calendar event with the new client name
   try {
-    await addClient(serviceAuth, SHEETS_ID, {
-      firstName,
-      lastName,
-      phone: '',
-      email,
-      isOwnerClient: false,
-      regulationsAccepted: false,
-      regulationsAcceptedDate: null,
-    });
+    const updatedBooking = await getBookingByToken(serviceAuth, SHEETS_ID, token);
+    if (updatedBooking) {
+      const allClientNames = updatedBooking.signups.map(
+        (s) => `${s.firstName} ${s.lastName}`
+      );
+      await updateCalendarEventClients(
+        serviceAuth,
+        updatedBooking.calendarEventId,
+        allClientNames,
+        CALENDAR_ID
+      );
+    }
   } catch {
-    // Client might already exist, that's OK
+    // Service account may not have calendar access - graceful degradation
   }
 
   // Send confirmation email
