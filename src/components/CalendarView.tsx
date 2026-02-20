@@ -223,8 +223,15 @@ export default function CalendarView() {
                             color: getInstructorColor(s.instructorId),
                           }}
                         >
-                          <div className="font-semibold text-[9px] leading-tight">
+                          <div className="font-semibold text-[9px] leading-tight flex items-center gap-0.5">
                             {s.type.charAt(0)}
+                            {s.isOpenSession && (
+                              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="opacity-70">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="2" y1="12" x2="22" y2="12" />
+                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                              </svg>
+                            )}
                           </div>
                           <div className="text-[8px] opacity-80 truncate leading-tight">
                             {s.instructorName?.split(' ')[0]}
