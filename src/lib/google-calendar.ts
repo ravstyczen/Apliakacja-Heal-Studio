@@ -54,6 +54,8 @@ export async function createCalendarEvent(
         isRecurring: String(session.isRecurring),
         recurringGroupId: session.recurringGroupId || '',
         recurringEndDate: session.recurringEndDate || '',
+        isOpenSession: String(session.isOpenSession || false),
+        bookingToken: session.bookingToken || '',
       },
     },
   };
@@ -240,6 +242,8 @@ export async function getCalendarEvents(
         isRecurring: props.isRecurring === 'true',
         recurringGroupId: props.recurringGroupId || null,
         recurringEndDate: props.recurringEndDate || null,
+        isOpenSession: props.isOpenSession === 'true',
+        bookingToken: props.bookingToken || null,
       };
     });
 }

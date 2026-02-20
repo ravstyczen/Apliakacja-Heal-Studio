@@ -197,6 +197,85 @@ export async function sendRegulationsEmail(
   });
 }
 
+export async function sendBookingConfirmation(
+  clientEmail: string,
+  clientName: string,
+  sessionDate: string,
+  sessionTime: string,
+  sessionType: string
+): Promise<void> {
+  await transporter.sendMail({
+    from: `"Heal Pilates Studio" <${process.env.SMTP_USER}>`,
+    to: clientEmail,
+    subject: `Potwierdzenie zapisu - ${sessionType} ${sessionDate}`,
+    html: `
+      <!DOCTYPE html>
+      <html lang="pl">
+      <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+      <body style="font-family: 'Helvetica Neue', Arial, sans-serif; background: #FAF9F7; color: #1A1A1A; margin: 0; padding: 0;">
+        <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+          <div style="text-align: center; margin-bottom: 40px;">
+            <div style="font-family: Georgia, serif; font-size: 32px; font-weight: 700; color: #2C3E2D; letter-spacing: 4px;">HEAL</div>
+            <div style="font-size: 12px; letter-spacing: 3px; color: #B8A88A; margin-top: 4px;">PILATES STUDIO</div>
+          </div>
+          <div style="background: white; border-radius: 12px; padding: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+            <h2 style="color: #2C3E2D; font-size: 20px; margin-bottom: 20px;">Potwierdzenie zapisu</h2>
+            <p style="line-height: 1.7; font-size: 15px;">Witaj <strong>${clientName}</strong>!</p>
+            <p style="line-height: 1.7; font-size: 15px;">Twoj zapis na sesje zostal potwierdzony.</p>
+            <div style="background: #FAF9F7; border-left: 3px solid #2C3E2D; padding: 16px 20px; margin: 24px 0; border-radius: 0 8px 8px 0;">
+              <p style="margin-bottom: 8px; font-size: 14px;"><strong>Rodzaj sesji:</strong> ${sessionType}</p>
+              <p style="margin-bottom: 8px; font-size: 14px;"><strong>Data:</strong> ${sessionDate}</p>
+              <p style="margin-bottom: 8px; font-size: 14px;"><strong>Godzina:</strong> ${sessionTime}</p>
+            </div>
+            <p style="line-height: 1.7; font-size: 15px;">Do zobaczenia na zajeciach!</p>
+          </div>
+          <div style="text-align: center; margin-top: 32px; font-size: 13px; color: #999;">
+            <p>Heal Pilates Studio<br>ul. Stanislawa Kostki-Potockiego 2/1, 02-958 Warszawa</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `,
+  });
+}
+
+export async function sendSessionFullEmail(
+  clientEmail: string,
+  clientName: string,
+  sessionDate: string,
+  sessionTime: string,
+  sessionType: string
+): Promise<void> {
+  await transporter.sendMail({
+    from: `"Heal Pilates Studio" <${process.env.SMTP_USER}>`,
+    to: clientEmail,
+    subject: `Sesja pelna - ${sessionType} ${sessionDate}`,
+    html: `
+      <!DOCTYPE html>
+      <html lang="pl">
+      <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+      <body style="font-family: 'Helvetica Neue', Arial, sans-serif; background: #FAF9F7; color: #1A1A1A; margin: 0; padding: 0;">
+        <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+          <div style="text-align: center; margin-bottom: 40px;">
+            <div style="font-family: Georgia, serif; font-size: 32px; font-weight: 700; color: #2C3E2D; letter-spacing: 4px;">HEAL</div>
+            <div style="font-size: 12px; letter-spacing: 3px; color: #B8A88A; margin-top: 4px;">PILATES STUDIO</div>
+          </div>
+          <div style="background: white; border-radius: 12px; padding: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+            <h2 style="color: #2C3E2D; font-size: 20px; margin-bottom: 20px;">Sesja jest juz pelna</h2>
+            <p style="line-height: 1.7; font-size: 15px;">Witaj <strong>${clientName}</strong>,</p>
+            <p style="line-height: 1.7; font-size: 15px;">Niestety sesja <strong>${sessionType}</strong> w dniu <strong>${sessionDate}</strong> o godzinie <strong>${sessionTime}</strong> jest juz w pelni zarezerwowana.</p>
+            <p style="line-height: 1.7; font-size: 15px;">Zapraszamy do zapisu na inne dostepne terminy. Prosimy o kontakt ze studiem.</p>
+          </div>
+          <div style="text-align: center; margin-top: 32px; font-size: 13px; color: #999;">
+            <p>Heal Pilates Studio<br>ul. Stanislawa Kostki-Potockiego 2/1, 02-958 Warszawa</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `,
+  });
+}
+
 export async function sendAcceptanceNotification(
   clientName: string,
   clientEmail: string,

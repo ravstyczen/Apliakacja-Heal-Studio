@@ -46,12 +46,20 @@ export default function SessionModal({
   const [selectedClients, setSelectedClients] = useState<Client[]>([]);
   const [isRecurring, setIsRecurring] = useState(existingSession?.isRecurring || false);
   const [recurringEndDate, setRecurringEndDate] = useState(existingSession?.recurringEndDate || '');
+  const [isOpenSession, setIsOpenSession] = useState(existingSession?.isOpenSession || false);
+  const [bookingToken] = useState(
+    existingSession?.bookingToken || crypto.randomUUID().replace(/-/g, '').slice(0, 12)
+  );
+  const [linkCopied, setLinkCopied] = useState(false);
   const [showClientPicker, setShowClientPicker] = useState(false);
   const [showRecurringEdit, setShowRecurringEdit] = useState(false);
   const [recurringEditMode, setRecurringEditMode] = useState<RecurringEditMode>('single');
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState('');
+
+  const appUrl = typeof window !== 'undefined' ? window.location.origin : '';
+  const bookingLink = `${appUrl}/book/${bookingToken}`;
 
   const [clients, setClients] = useState<Client[]>([]);
 
@@ -128,6 +136,8 @@ export default function SessionModal({
       isRecurring,
       recurringGroupId: existingSession?.recurringGroupId || (isRecurring ? `recurring-${Date.now()}` : null),
       recurringEndDate: isRecurring ? recurringEndDate : null,
+      isOpenSession,
+      bookingToken: isOpenSession ? bookingToken : null,
     };
 
     try {
@@ -485,6 +495,49 @@ export default function SessionModal({
                   min={date}
                   className="w-full bg-heal-light rounded-xl px-4 py-3 text-sm text-heal-dark outline-none focus:ring-2 focus:ring-heal-primary/30"
                 />
+              </div>
+            )}
+          </div>
+
+          {/* Open Session */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                Otwarta sesja
+              </label>
+              <button
+                onClick={() => setIsOpenSession(!isOpenSession)}
+                className={`toggle ${isOpenSession ? 'active' : ''}`}
+              />
+            </div>
+
+            {isOpenSession && (
+              <div>
+                <p className="text-xs text-gray-400 mb-2">
+                  Link do zapisu online:
+                </p>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={bookingLink}
+                    className="flex-1 bg-heal-light rounded-xl px-3 py-2.5 text-xs text-heal-dark outline-none truncate"
+                  />
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(bookingLink);
+                      setLinkCopied(true);
+                      setTimeout(() => setLinkCopied(false), 2000);
+                    }}
+                    className={`shrink-0 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors ${
+                      linkCopied
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-heal-primary text-white'
+                    }`}
+                  >
+                    {linkCopied ? 'Skopiowano!' : 'Kopiuj'}
+                  </button>
+                </div>
               </div>
             )}
           </div>

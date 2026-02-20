@@ -49,6 +49,8 @@ export interface Session {
   isRecurring: boolean;
   recurringGroupId: string | null;
   recurringEndDate: string | null; // ISO date string
+  isOpenSession: boolean;
+  bookingToken: string | null;
 }
 
 export interface Settlement {

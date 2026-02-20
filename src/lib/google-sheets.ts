@@ -1,5 +1,24 @@
 import { google } from 'googleapis';
-import { Client, Settlement, MonthlySettlement, Instructor } from './types';
+import { Client, Settlement, MonthlySettlement, Instructor, SessionType } from './types';
+
+export interface BookingSignup {
+  firstName: string;
+  lastName: string;
+  email: string;
+  signedUpAt: string;
+}
+
+export interface BookingRecord {
+  token: string;
+  calendarEventId: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  sessionType: SessionType;
+  instructorName: string;
+  maxSlots: number;
+  signups: BookingSignup[];
+}
 
 function isTrueValue(val: unknown): boolean {
   if (typeof val === 'boolean') return val;
@@ -20,6 +39,7 @@ const SHEETS = {
   CLIENTS: 'Klienci',
   SESSIONS: 'Sesje',
   INSTRUCTORS: 'Instruktorzy',
+  BOOKINGS: 'Rezerwacje',
 };
 
 // ---- CLIENTS ----
@@ -549,4 +569,186 @@ export async function initializeSpreadsheet(
   await initializeClientsSheet(accessToken, spreadsheetId);
   await initializeSessionsSheet(accessToken, spreadsheetId);
   await initializeInstructorsSheet(accessToken, spreadsheetId);
+}
+
+// ---- BOOKINGS (Open Sessions) ----
+
+async function initializeBookingsSheet(
+  accessToken: string,
+  spreadsheetId: string
+): Promise<void> {
+  const sheets = getSheetsClient(accessToken);
+
+  try {
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId,
+      requestBody: {
+        requests: [
+          { addSheet: { properties: { title: SHEETS.BOOKINGS } } },
+        ],
+      },
+    });
+  } catch {
+    // Sheet might already exist
+  }
+
+  await sheets.spreadsheets.values.update({
+    spreadsheetId,
+    range: `${SHEETS.BOOKINGS}!A1:I1`,
+    valueInputOption: 'USER_ENTERED',
+    requestBody: {
+      values: [
+        ['Token', 'CalendarEventId', 'Data', 'Godzina start', 'Godzina koniec', 'Rodzaj', 'Instruktor', 'Max miejsc', 'Zapisy (JSON)'],
+      ],
+    },
+  });
+}
+
+export async function createBooking(
+  accessToken: string,
+  spreadsheetId: string,
+  booking: Omit<BookingRecord, 'signups'>
+): Promise<void> {
+  const sheets = getSheetsClient(accessToken);
+
+  try {
+    await sheets.spreadsheets.values.append({
+      spreadsheetId,
+      range: `${SHEETS.BOOKINGS}!A:I`,
+      valueInputOption: 'USER_ENTERED',
+      requestBody: {
+        values: [
+          [
+            booking.token,
+            booking.calendarEventId,
+            booking.date,
+            booking.startTime,
+            booking.endTime,
+            booking.sessionType,
+            booking.instructorName,
+            String(booking.maxSlots),
+            '[]',
+          ],
+        ],
+      },
+    });
+  } catch {
+    await initializeBookingsSheet(accessToken, spreadsheetId);
+    await sheets.spreadsheets.values.append({
+      spreadsheetId,
+      range: `${SHEETS.BOOKINGS}!A:I`,
+      valueInputOption: 'USER_ENTERED',
+      requestBody: {
+        values: [
+          [
+            booking.token,
+            booking.calendarEventId,
+            booking.date,
+            booking.startTime,
+            booking.endTime,
+            booking.sessionType,
+            booking.instructorName,
+            String(booking.maxSlots),
+            '[]',
+          ],
+        ],
+      },
+    });
+  }
+}
+
+export async function getBookingByToken(
+  accessToken: string,
+  spreadsheetId: string,
+  token: string
+): Promise<BookingRecord | null> {
+  const sheets = getSheetsClient(accessToken);
+
+  try {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: `${SHEETS.BOOKINGS}!A2:I`,
+    });
+
+    const rows = response.data.values || [];
+    for (const row of rows) {
+      if (row[0] === token) {
+        let signups: BookingSignup[] = [];
+        try {
+          signups = JSON.parse(row[8] || '[]');
+        } catch {
+          signups = [];
+        }
+        return {
+          token: row[0],
+          calendarEventId: row[1] || '',
+          date: row[2] || '',
+          startTime: row[3] || '',
+          endTime: row[4] || '',
+          sessionType: row[5] as SessionType,
+          instructorName: row[6] || '',
+          maxSlots: Number(row[7]) || 1,
+          signups,
+        };
+      }
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export async function addBookingSignup(
+  accessToken: string,
+  spreadsheetId: string,
+  token: string,
+  signup: BookingSignup
+): Promise<{ success: boolean; full: boolean }> {
+  const sheets = getSheetsClient(accessToken);
+
+  try {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: `${SHEETS.BOOKINGS}!A2:I`,
+    });
+
+    const rows = response.data.values || [];
+    let rowIndex = -1;
+    for (let i = 0; i < rows.length; i++) {
+      if (rows[i][0] === token) {
+        rowIndex = i;
+        break;
+      }
+    }
+
+    if (rowIndex === -1) return { success: false, full: false };
+
+    const row = rows[rowIndex];
+    const maxSlots = Number(row[7]) || 1;
+    let signups: BookingSignup[] = [];
+    try {
+      signups = JSON.parse(row[8] || '[]');
+    } catch {
+      signups = [];
+    }
+
+    if (signups.length >= maxSlots) {
+      return { success: false, full: true };
+    }
+
+    signups.push(signup);
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId,
+      range: `${SHEETS.BOOKINGS}!I${rowIndex + 2}`,
+      valueInputOption: 'USER_ENTERED',
+      requestBody: {
+        values: [[JSON.stringify(signups)]],
+      },
+    });
+
+    return { success: true, full: signups.length >= maxSlots };
+  } catch {
+    return { success: false, full: false };
+  }
 }

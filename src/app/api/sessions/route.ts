@@ -7,7 +7,8 @@ import {
   deleteCalendarEvent,
   getCalendarEvents,
 } from '@/lib/google-calendar';
-import { addSettlement, deleteSettlementByDetails, getInstructorsFromSheet } from '@/lib/google-sheets';
+import { addSettlement, deleteSettlementByDetails, getInstructorsFromSheet, createBooking } from '@/lib/google-sheets';
+import { SESSION_CLIENT_LIMITS } from '@/lib/types';
 import { getInstructorById } from '@/lib/instructors-data';
 import { Instructor, getSessionPrice, getSessionShare } from '@/lib/types';
 
@@ -112,6 +113,21 @@ export async function POST(request: NextRequest) {
           await addSettlement(accessToken, SHEETS_ID, { ...settlementBase, date: body.date });
         }
       }
+    }
+
+    // Create booking record for open sessions
+    if (body.isOpenSession && body.bookingToken && SHEETS_ID) {
+      const instructor = await findInstructor(accessToken, body.instructorId);
+      await createBooking(accessToken, SHEETS_ID, {
+        token: body.bookingToken,
+        calendarEventId: eventId,
+        date: body.date,
+        startTime: body.startTime || '',
+        endTime: body.endTime || '',
+        sessionType: body.type,
+        instructorName: instructor?.name || '',
+        maxSlots: SESSION_CLIENT_LIMITS[body.type as keyof typeof SESSION_CLIENT_LIMITS] || 1,
+      });
     }
 
     return NextResponse.json({ id: eventId, calendarEventId: eventId });
