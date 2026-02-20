@@ -7,7 +7,7 @@ import {
   deleteCalendarEvent,
   getCalendarEvents,
 } from '@/lib/google-calendar';
-import { addSettlement, deleteSettlementByDetails, getInstructorsFromSheet, createBooking } from '@/lib/google-sheets';
+import { addSettlement, deleteSettlementByDetails, getInstructorsFromSheet, createBooking, getAllBookings } from '@/lib/google-sheets';
 import { SESSION_CLIENT_LIMITS } from '@/lib/types';
 import { getInstructorById } from '@/lib/instructors-data';
 import { Instructor, getSessionPrice, getSessionShare } from '@/lib/types';
@@ -60,6 +60,33 @@ export async function GET(request: NextRequest) {
       timeMax,
       CALENDAR_ID
     );
+
+    // Merge booking signups into open sessions so client names display in calendar
+    if (SHEETS_ID) {
+      const openSessions = events.filter((e) => e.isOpenSession && e.bookingToken);
+      if (openSessions.length > 0) {
+        try {
+          const bookings = await getAllBookings(accessToken, SHEETS_ID);
+          const bookingsByEventId = new Map(
+            bookings.map((b) => [b.calendarEventId, b])
+          );
+          for (const event of events) {
+            if (event.isOpenSession) {
+              const booking = bookingsByEventId.get(event.calendarEventId);
+              if (booking && booking.signups.length > 0) {
+                const bookingNames = booking.signups.map(
+                  (s) => `${s.firstName} ${s.lastName}`
+                );
+                event.clientNames = bookingNames;
+              }
+            }
+          }
+        } catch {
+          // Don't fail if booking lookup fails
+        }
+      }
+    }
+
     return NextResponse.json(events, {
       headers: { 'Cache-Control': 'no-store, must-revalidate' },
     });

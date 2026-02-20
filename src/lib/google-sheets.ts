@@ -698,6 +698,43 @@ export async function getBookingByToken(
   }
 }
 
+export async function getAllBookings(
+  accessToken: string,
+  spreadsheetId: string
+): Promise<BookingRecord[]> {
+  const sheets = getSheetsClient(accessToken);
+
+  try {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: `${SHEETS.BOOKINGS}!A2:I`,
+    });
+
+    const rows = response.data.values || [];
+    return rows.map((row) => {
+      let signups: BookingSignup[] = [];
+      try {
+        signups = JSON.parse(row[8] || '[]');
+      } catch {
+        signups = [];
+      }
+      return {
+        token: row[0] || '',
+        calendarEventId: row[1] || '',
+        date: row[2] || '',
+        startTime: row[3] || '',
+        endTime: row[4] || '',
+        sessionType: row[5] as SessionType,
+        instructorName: row[6] || '',
+        maxSlots: Number(row[7]) || 1,
+        signups,
+      };
+    });
+  } catch {
+    return [];
+  }
+}
+
 export async function addBookingSignup(
   accessToken: string,
   spreadsheetId: string,
