@@ -102,7 +102,7 @@ function tip(text) {
 
   doc.roundedRect(ML, y, PW, h, 4).fill(COLORS.blockquoteBg);
   doc.rect(ML, y, 3, h).fill(COLORS.blockquoteBorder);
-  doc.fillColor('#555555').font('Helvetica').fontSize(10);
+  doc.fillColor('#555555').font(FONT_REGULAR).fontSize(10);
   doc.text(text, ML + 14, y + 8, { width: PW - 30 });
   y += h + 10;
 }
