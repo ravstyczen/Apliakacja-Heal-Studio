@@ -31,7 +31,12 @@ export default function CalendarView() {
       const res = await fetch(`/api/sessions?timeMin=${timeMin}&timeMax=${timeMax}`, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
-        setSessions(data);
+        // Only update state if data actually changed to avoid unnecessary re-renders
+        setSessions((prev) => {
+          const newJson = JSON.stringify(data);
+          const prevJson = JSON.stringify(prev);
+          return newJson === prevJson ? prev : data;
+        });
       }
     } catch (error) {
       console.error('Failed to fetch sessions:', error);
@@ -43,9 +48,9 @@ export default function CalendarView() {
     fetchSessions();
   }, [fetchSessions]);
 
-  // Poll for changes every 30 seconds so updates by other instructors are visible
+  // Poll for changes every 60 seconds in the background (no loading spinner)
   useEffect(() => {
-    const interval = setInterval(() => fetchSessions(true), 30_000);
+    const interval = setInterval(() => fetchSessions(true), 60_000);
     return () => clearInterval(interval);
   }, [fetchSessions]);
 

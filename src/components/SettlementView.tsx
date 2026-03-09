@@ -27,8 +27,8 @@ export default function SettlementView() {
 
   const [hasSynced, setHasSynced] = useState(false);
 
-  const fetchSettlements = useCallback(async () => {
-    setLoading(true);
+  const fetchSettlements = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       let url = `/api/settlements?view=monthly&month=${monthStr}`;
       if (selectedInstructorId) {
@@ -37,12 +37,17 @@ export default function SettlementView() {
       const res = await fetch(url, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
-        setMonthlyData(data);
+        // Only update state if data actually changed to avoid unnecessary re-renders
+        setMonthlyData((prev) => {
+          const newJson = JSON.stringify(data);
+          const prevJson = JSON.stringify(prev);
+          return newJson === prevJson ? prev : data;
+        });
       }
     } catch (e) {
       console.error('Failed to fetch settlements:', e);
     }
-    setLoading(false);
+    if (!silent) setLoading(false);
   }, [monthStr, selectedInstructorId]);
 
   // Sync settlements from calendar on first mount, then fetch
@@ -61,17 +66,17 @@ export default function SettlementView() {
     fetchSettlements();
   }, [fetchSettlements, hasSynced]);
 
-  // Poll for changes every 30 seconds so updates by other users are visible
+  // Poll for changes every 60 seconds in the background (no loading spinner)
   useEffect(() => {
-    const interval = setInterval(() => fetchSettlements(), 30_000);
+    const interval = setInterval(() => fetchSettlements(true), 60_000);
     return () => clearInterval(interval);
   }, [fetchSettlements]);
 
-  // Refetch when app becomes visible (e.g. switching between devices/apps)
+  // Refetch silently when app becomes visible (e.g. switching between devices/apps)
   useEffect(() => {
     const handleVisibility = () => {
       if (document.visibilityState === 'visible') {
-        fetchSettlements();
+        fetchSettlements(true);
       }
     };
     document.addEventListener('visibilitychange', handleVisibility);

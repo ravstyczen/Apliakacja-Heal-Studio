@@ -31,35 +31,40 @@ export default function ClientList() {
   const [editClient, setEditClient] = useState<Client | null>(null);
   const [filter, setFilter] = useState<'all' | 'accepted' | 'pending'>('all');
 
-  const fetchClients = useCallback(async () => {
-    setLoading(true);
+  const fetchClients = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const res = await fetch('/api/clients', { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
-        setClients(data);
+        // Only update state if data actually changed to avoid unnecessary re-renders
+        setClients((prev) => {
+          const newJson = JSON.stringify(data);
+          const prevJson = JSON.stringify(prev);
+          return newJson === prevJson ? prev : data;
+        });
       }
     } catch (e) {
       console.error('Failed to fetch clients:', e);
     }
-    setLoading(false);
+    if (!silent) setLoading(false);
   }, []);
 
   useEffect(() => {
     fetchClients();
   }, [fetchClients]);
 
-  // Poll for changes every 30 seconds so updates by other users are visible
+  // Poll for changes every 60 seconds in the background (no loading spinner)
   useEffect(() => {
-    const interval = setInterval(() => fetchClients(), 30_000);
+    const interval = setInterval(() => fetchClients(true), 60_000);
     return () => clearInterval(interval);
   }, [fetchClients]);
 
-  // Refetch when app becomes visible (e.g. switching between devices/apps)
+  // Refetch silently when app becomes visible (e.g. switching between devices/apps)
   useEffect(() => {
     const handleVisibility = () => {
       if (document.visibilityState === 'visible') {
-        fetchClients();
+        fetchClients(true);
       }
     };
     document.addEventListener('visibilitychange', handleVisibility);
