@@ -9,6 +9,7 @@ import {
 } from '@/lib/google-sheets';
 import { sendRegulationsEmail } from '@/lib/email';
 import { isOwnerOrAdmin } from '@/lib/types';
+import { getServiceAuth } from '@/lib/service-auth';
 
 const SHEETS_ID = process.env.GOOGLE_SHEETS_ID || '';
 
@@ -18,11 +19,14 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const accessToken = (session as any).accessToken;
   const instructor = (session as any).instructor;
+  const serviceToken = await getServiceAuth();
+  if (!serviceToken) {
+    return NextResponse.json({ error: 'Service account unavailable' }, { status: 500 });
+  }
 
   try {
-    let clients = await getClients(accessToken, SHEETS_ID);
+    let clients = await getClients(serviceToken, SHEETS_ID);
 
     // Filter out owner clients for regular instructors
     if (instructor && !isOwnerOrAdmin(instructor.role)) {
@@ -46,11 +50,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const accessToken = (session as any).accessToken;
+  const serviceToken = await getServiceAuth();
+  if (!serviceToken) {
+    return NextResponse.json({ error: 'Service account unavailable' }, { status: 500 });
+  }
+
   const body = await request.json();
 
   try {
-    const newClient = await addClient(accessToken, SHEETS_ID, body);
+    const newClient = await addClient(serviceToken, SHEETS_ID, body);
 
     // Send regulations email to new client
     if (body.email) {
@@ -81,11 +89,15 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const accessToken = (session as any).accessToken;
+  const serviceToken = await getServiceAuth();
+  if (!serviceToken) {
+    return NextResponse.json({ error: 'Service account unavailable' }, { status: 500 });
+  }
+
   const body = await request.json();
 
   try {
-    await updateClient(accessToken, SHEETS_ID, body);
+    await updateClient(serviceToken, SHEETS_ID, body);
     return NextResponse.json({ success: true });
   } catch (error: any) {
     return NextResponse.json(
@@ -101,7 +113,11 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const accessToken = (session as any).accessToken;
+  const serviceToken = await getServiceAuth();
+  if (!serviceToken) {
+    return NextResponse.json({ error: 'Service account unavailable' }, { status: 500 });
+  }
+
   const { searchParams } = new URL(request.url);
   const clientId = searchParams.get('clientId');
 
@@ -113,7 +129,7 @@ export async function DELETE(request: NextRequest) {
   }
 
   try {
-    await deleteClient(accessToken, SHEETS_ID, clientId);
+    await deleteClient(serviceToken, SHEETS_ID, clientId);
     return NextResponse.json({ success: true });
   } catch (error: any) {
     return NextResponse.json(

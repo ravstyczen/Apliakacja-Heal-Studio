@@ -5,6 +5,7 @@ import { getCalendarEvents } from '@/lib/google-calendar';
 import { clearSettlements, addSettlement, getInstructorsFromSheet } from '@/lib/google-sheets';
 import { getInstructorById } from '@/lib/instructors-data';
 import { Instructor, getSessionPrice, getSessionShare } from '@/lib/types';
+import { getServiceAuth } from '@/lib/service-auth';
 
 const CALENDAR_ID = process.env.GOOGLE_CALENDAR_ID || 'primary';
 const SHEETS_ID = process.env.GOOGLE_SHEETS_ID || '';
@@ -15,26 +16,29 @@ export async function POST() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const accessToken = (session as any).accessToken;
+  const serviceToken = await getServiceAuth();
+  if (!serviceToken) {
+    return NextResponse.json({ error: 'Service account unavailable' }, { status: 500 });
+  }
 
   try {
-    // Read calendar events (last 6 months + 3 months ahead)
+    // Read calendar events using Service Account
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
     const threeMonthsAhead = new Date();
     threeMonthsAhead.setMonth(threeMonthsAhead.getMonth() + 3);
 
     const calendarEvents = await getCalendarEvents(
-      accessToken,
+      serviceToken,
       sixMonthsAgo.toISOString(),
       threeMonthsAhead.toISOString(),
       CALENDAR_ID
     );
 
-    // Load instructor pricing from sheet (source of truth)
+    // Load instructor pricing from sheet using Service Account
     let sheetInstructors: Instructor[] = [];
     try {
-      sheetInstructors = await getInstructorsFromSheet(accessToken, SHEETS_ID);
+      sheetInstructors = await getInstructorsFromSheet(serviceToken, SHEETS_ID);
     } catch {
       // Fall back to defaults
     }
@@ -69,11 +73,11 @@ export async function POST() {
       });
     }
 
-    // Only clear and re-write if we have data (prevent accidental wipe)
+    // Write to Sheets using Service Account
     if (settlementsToWrite.length > 0) {
-      await clearSettlements(accessToken, SHEETS_ID);
+      await clearSettlements(serviceToken, SHEETS_ID);
       for (const settlement of settlementsToWrite) {
-        await addSettlement(accessToken, SHEETS_ID, settlement);
+        await addSettlement(serviceToken, SHEETS_ID, settlement);
       }
     }
 

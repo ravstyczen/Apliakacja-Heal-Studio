@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { getSettlements, getMonthlySettlement } from '@/lib/google-sheets';
 import { isOwnerOrAdmin } from '@/lib/types';
+import { getServiceAuth } from '@/lib/service-auth';
 
 const SHEETS_ID = process.env.GOOGLE_SHEETS_ID || '';
 
@@ -12,12 +13,16 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const accessToken = (session as any).accessToken;
   const instructor = (session as any).instructor;
   const { searchParams } = new URL(request.url);
   const month = searchParams.get('month') || undefined;
   const instructorId = searchParams.get('instructorId') || undefined;
   const view = searchParams.get('view') || 'list'; // 'list' or 'monthly'
+
+  const serviceToken = await getServiceAuth();
+  if (!serviceToken) {
+    return NextResponse.json({ error: 'Service account unavailable' }, { status: 500 });
+  }
 
   try {
     // Regular instructors can only see their own settlements
@@ -34,7 +39,7 @@ export async function GET(request: NextRequest) {
         );
       }
       const data = await getMonthlySettlement(
-        accessToken,
+        serviceToken,
         SHEETS_ID,
         month,
         filterInstructorId
@@ -45,7 +50,7 @@ export async function GET(request: NextRequest) {
     }
 
     const settlements = await getSettlements(
-      accessToken,
+      serviceToken,
       SHEETS_ID,
       month,
       filterInstructorId

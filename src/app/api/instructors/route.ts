@@ -7,6 +7,7 @@ import {
 } from '@/lib/google-sheets';
 import { DEFAULT_INSTRUCTORS } from '@/lib/instructors-data';
 import { isOwnerOrAdmin } from '@/lib/types';
+import { getServiceAuth } from '@/lib/service-auth';
 
 const SHEETS_ID = process.env.GOOGLE_SHEETS_ID || '';
 
@@ -21,15 +22,18 @@ export async function GET() {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  const accessToken = (session as any).accessToken;
+  const serviceToken = await getServiceAuth();
+  if (!serviceToken) {
+    return NextResponse.json({ error: 'Service account unavailable' }, { status: 500 });
+  }
 
   try {
-    let instructors = await getInstructorsFromSheet(accessToken, SHEETS_ID);
+    let instructors = await getInstructorsFromSheet(serviceToken, SHEETS_ID);
 
     // If no instructors in sheet, initialize with defaults
     if (instructors.length === 0) {
       await saveInstructorsToSheet(
-        accessToken,
+        serviceToken,
         SHEETS_ID,
         DEFAULT_INSTRUCTORS
       );
@@ -54,11 +58,15 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  const accessToken = (session as any).accessToken;
+  const serviceToken = await getServiceAuth();
+  if (!serviceToken) {
+    return NextResponse.json({ error: 'Service account unavailable' }, { status: 500 });
+  }
+
   const body = await request.json();
 
   try {
-    await saveInstructorsToSheet(accessToken, SHEETS_ID, body.instructors);
+    await saveInstructorsToSheet(serviceToken, SHEETS_ID, body.instructors);
     return NextResponse.json({ success: true });
   } catch (error: any) {
     return NextResponse.json(

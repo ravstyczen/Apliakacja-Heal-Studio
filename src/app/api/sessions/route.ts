@@ -11,15 +11,21 @@ import { addSettlement, deleteSettlementByDetails, getInstructorsFromSheet, crea
 import { SESSION_CLIENT_LIMITS } from '@/lib/types';
 import { getInstructorById } from '@/lib/instructors-data';
 import { Instructor, getSessionPrice, getSessionShare } from '@/lib/types';
+import { getServiceAuth } from '@/lib/service-auth';
 
 const CALENDAR_ID = process.env.GOOGLE_CALENDAR_ID || 'primary';
 const SHEETS_ID = process.env.GOOGLE_SHEETS_ID || '';
 
-async function findInstructor(accessToken: string, instructorId: string): Promise<Instructor | undefined> {
-  // Read from sheet first (source of truth for pricing), fall back to hardcoded defaults
+async function getServiceToken(): Promise<string> {
+  const token = await getServiceAuth();
+  if (!token) throw new Error('Service account unavailable');
+  return token;
+}
+
+async function findInstructor(sheetsToken: string, instructorId: string): Promise<Instructor | undefined> {
   try {
     if (SHEETS_ID) {
-      const sheetInstructors = await getInstructorsFromSheet(accessToken, SHEETS_ID);
+      const sheetInstructors = await getInstructorsFromSheet(sheetsToken, SHEETS_ID);
       const found = sheetInstructors.find((i) => i.id === instructorId);
       if (found) return found;
     }
@@ -46,7 +52,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const accessToken = (session as any).accessToken;
   const { searchParams } = new URL(request.url);
   const timeMin = searchParams.get('timeMin') || new Date().toISOString();
   const timeMax =
@@ -54,19 +59,21 @@ export async function GET(request: NextRequest) {
     new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
   try {
+    const serviceToken = await getServiceToken();
+
     const events = await getCalendarEvents(
-      accessToken,
+      serviceToken,
       timeMin,
       timeMax,
       CALENDAR_ID
     );
 
-    // Merge booking signups into open sessions so client names display in calendar
+    // Merge booking signups into open sessions
     if (SHEETS_ID) {
       const openSessions = events.filter((e) => e.isOpenSession && e.bookingToken);
       if (openSessions.length > 0) {
         try {
-          const bookings = await getAllBookings(accessToken, SHEETS_ID);
+          const bookings = await getAllBookings(serviceToken, SHEETS_ID);
           const bookingsByEventId = new Map(
             bookings.map((b) => [b.calendarEventId, b])
           );
@@ -108,19 +115,20 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const accessToken = (session as any).accessToken;
   const body = await request.json();
 
   try {
-    // Create single or recurring events
+    const serviceToken = await getServiceToken();
+
+    // Create calendar event
     const eventData = body.isRecurring && body.recurringEndDate
       ? body
       : { ...body, isRecurring: false, recurringEndDate: null };
-    const eventId = await createCalendarEvent(accessToken, eventData, CALENDAR_ID);
+    const eventId = await createCalendarEvent(serviceToken, eventData, CALENDAR_ID);
 
-    // Write settlement to Sesje sheet
+    // Write settlement to Sheets
     if (SHEETS_ID) {
-      const instructor = await findInstructor(accessToken, body.instructorId);
+      const instructor = await findInstructor(serviceToken, body.instructorId);
       if (instructor) {
         const price = getSessionPrice(instructor.pricing, body.type);
         const share = getSessionShare(instructor.pricing, body.type);
@@ -135,30 +143,29 @@ export async function POST(request: NextRequest) {
         };
 
         if (body.isRecurring && body.recurringEndDate) {
-          // Write entries for all recurring weekly dates
           const dates = getWeeklyDates(body.date, body.recurringEndDate);
           for (const date of dates) {
-            await addSettlement(accessToken, SHEETS_ID, { ...settlementBase, date });
+            await addSettlement(serviceToken, SHEETS_ID, { ...settlementBase, date });
           }
         } else {
-          await addSettlement(accessToken, SHEETS_ID, { ...settlementBase, date: body.date });
+          await addSettlement(serviceToken, SHEETS_ID, { ...settlementBase, date: body.date });
         }
       }
-    }
 
-    // Create booking record for open sessions
-    if (body.isOpenSession && body.bookingToken && SHEETS_ID) {
-      const instructor = await findInstructor(accessToken, body.instructorId);
-      await createBooking(accessToken, SHEETS_ID, {
-        token: body.bookingToken,
-        calendarEventId: eventId,
-        date: body.date,
-        startTime: body.startTime || '',
-        endTime: body.endTime || '',
-        sessionType: body.type,
-        instructorName: instructor?.name || '',
-        maxSlots: SESSION_CLIENT_LIMITS[body.type as keyof typeof SESSION_CLIENT_LIMITS] || 1,
-      });
+      // Create booking record for open sessions
+      if (body.isOpenSession && body.bookingToken) {
+        const bookingInstructor = await findInstructor(serviceToken, body.instructorId);
+        await createBooking(serviceToken, SHEETS_ID, {
+          token: body.bookingToken,
+          calendarEventId: eventId,
+          date: body.date,
+          startTime: body.startTime || '',
+          endTime: body.endTime || '',
+          sessionType: body.type,
+          instructorName: bookingInstructor?.name || '',
+          maxSlots: SESSION_CLIENT_LIMITS[body.type as keyof typeof SESSION_CLIENT_LIMITS] || 1,
+        });
+      }
     }
 
     return NextResponse.json({ id: eventId, calendarEventId: eventId });
@@ -176,12 +183,12 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const accessToken = (session as any).accessToken;
   const body = await request.json();
   const { eventId, ...updateData } = body;
 
   try {
-    await updateCalendarEvent(accessToken, eventId, updateData, CALENDAR_ID);
+    const serviceToken = await getServiceToken();
+    await updateCalendarEvent(serviceToken, eventId, updateData, CALENDAR_ID);
     return NextResponse.json({ success: true });
   } catch (error: any) {
     return NextResponse.json(
@@ -197,7 +204,6 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const accessToken = (session as any).accessToken;
   const { searchParams } = new URL(request.url);
   const eventId = searchParams.get('eventId');
 
@@ -208,15 +214,16 @@ export async function DELETE(request: NextRequest) {
     );
   }
 
-  // Also get session details from query params for settlement deletion
   const editMode = searchParams.get('editMode') as 'single' | 'future' | 'all' | null;
   const date = searchParams.get('date');
   const instructorId = searchParams.get('instructorId');
   const sessionType = searchParams.get('sessionType');
 
   try {
+    const serviceToken = await getServiceToken();
+
     await deleteCalendarEvent(
-      accessToken,
+      serviceToken,
       eventId,
       CALENDAR_ID,
       editMode || undefined,
@@ -225,7 +232,7 @@ export async function DELETE(request: NextRequest) {
 
     // Remove corresponding settlement entry
     if (SHEETS_ID && date && instructorId && sessionType) {
-      await deleteSettlementByDetails(accessToken, SHEETS_ID, date, instructorId, sessionType);
+      await deleteSettlementByDetails(serviceToken, SHEETS_ID, date, instructorId, sessionType);
     }
 
     return NextResponse.json({ success: true });
