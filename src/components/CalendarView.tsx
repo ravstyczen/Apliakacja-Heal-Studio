@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { format, addDays, startOfWeek, isToday } from 'date-fns';
 import { pl } from 'date-fns/locale';
@@ -114,6 +114,28 @@ export default function CalendarView() {
     fetchSessions();
   };
 
+  // Swipe gesture handling for week navigation
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || touchStartY.current === null) return;
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+    const deltaY = e.changedTouches[0].clientY - touchStartY.current;
+    touchStartX.current = null;
+    touchStartY.current = null;
+
+    // Only trigger if horizontal swipe is dominant and long enough
+    if (Math.abs(deltaX) > 60 && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
+      navigateWeek(deltaX < 0 ? 1 : -1);
+    }
+  };
+
   return (
     <div className="flex flex-col h-full">
       {/* Header with week navigation */}
@@ -166,7 +188,11 @@ export default function CalendarView() {
       </div>
 
       {/* Weekly calendar grid */}
-      <div className="flex-1 overflow-auto px-2 pb-24">
+      <div
+        className="flex-1 overflow-auto px-2 pb-24"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <div className="spinner" />
