@@ -20,6 +20,15 @@ function getCalendarClient(accessToken: string) {
   return google.calendar({ version: 'v3', auth });
 }
 
+function buildExtendedProperties(data: Record<string, string>) {
+  // Write to BOTH shared and private for maximum compatibility
+  // Recurring event instances may not inherit one or the other
+  return {
+    shared: { ...data },
+    private: { ...data },
+  };
+}
+
 export async function createCalendarEvent(
   accessToken: string,
   session: Omit<Session, 'id' | 'calendarEventId'>,
@@ -48,20 +57,18 @@ export async function createCalendarEvent(
       dateTime: `${session.date}T${session.endTime}:00`,
       timeZone: 'Europe/Warsaw',
     },
-    extendedProperties: {
-      shared: {
-        sessionType: session.type,
-        instructorId: session.instructorId,
-        instructorName: instructorName,
-        clientIds: JSON.stringify(session.clientIds),
-        clientNames: JSON.stringify(session.clientNames),
-        isRecurring: String(session.isRecurring),
-        recurringGroupId: session.recurringGroupId || '',
-        recurringEndDate: session.recurringEndDate || '',
-        isOpenSession: String(session.isOpenSession || false),
-        bookingToken: session.bookingToken || '',
-      },
-    },
+    extendedProperties: buildExtendedProperties({
+      sessionType: session.type,
+      instructorId: session.instructorId,
+      instructorName: instructorName,
+      clientIds: JSON.stringify(session.clientIds),
+      clientNames: JSON.stringify(session.clientNames),
+      isRecurring: String(session.isRecurring),
+      recurringGroupId: session.recurringGroupId || '',
+      recurringEndDate: session.recurringEndDate || '',
+      isOpenSession: String(session.isOpenSession || false),
+      bookingToken: session.bookingToken || '',
+    }),
   };
 
   if (session.isRecurring && session.recurringEndDate) {
@@ -77,13 +84,18 @@ export async function createCalendarEvent(
   return response.data.id!;
 }
 
+function getBaseEventId(eventId: string): string {
+  return eventId.replace(/_\d{8}T\d{6}Z$/, '');
+}
+
 export async function updateCalendarEvent(
   accessToken: string,
   eventId: string,
-  session: Partial<Session>,
+  session: Partial<Session> & { editMode?: RecurringEditMode },
   calendarId: string = 'primary'
 ): Promise<void> {
   const calendar = getCalendarClient(accessToken);
+  const editMode = session.editMode;
 
   const updateData: calendar_v3.Schema$Event = {};
 
@@ -111,21 +123,92 @@ export async function updateCalendarEvent(
     updateData.description = `Klienci: ${session.clientNames.join(', ') || 'Brak'}`;
   }
 
-  updateData.extendedProperties = {
-    shared: {
-      ...(session.type && { sessionType: session.type }),
-      ...(session.instructorId && { instructorId: session.instructorId }),
-      ...(session.instructorName && { instructorName: session.instructorName }),
-      ...(session.clientIds && { clientIds: JSON.stringify(session.clientIds) }),
-      ...(session.clientNames && { clientNames: JSON.stringify(session.clientNames) }),
-    },
+  const propsData: Record<string, string> = {
+    ...(session.type && { sessionType: session.type }),
+    ...(session.instructorId && { instructorId: session.instructorId }),
+    ...(session.instructorName && { instructorName: session.instructorName }),
+    ...(session.clientIds && { clientIds: JSON.stringify(session.clientIds) }),
+    ...(session.clientNames && { clientNames: JSON.stringify(session.clientNames) }),
   };
+  updateData.extendedProperties = buildExtendedProperties(propsData);
 
-  await calendar.events.patch({
-    calendarId,
-    eventId,
-    requestBody: updateData,
-  });
+  if (editMode === 'all') {
+    // Update the entire recurring series — use base event ID
+    const baseId = getBaseEventId(eventId);
+    // For 'all' mode, don't send start/end (they relate to a specific instance)
+    delete updateData.start;
+    delete updateData.end;
+    await calendar.events.patch({
+      calendarId,
+      eventId: baseId,
+      requestBody: updateData,
+    });
+  } else if (editMode === 'future' && session.date) {
+    // End old series before this instance, create a new series from this date
+    const baseId = getBaseEventId(eventId);
+
+    // First, get the existing base event to read its recurrence rule
+    const existing = await calendar.events.get({ calendarId, eventId: baseId });
+
+    // Shorten original series to end before this instance
+    const untilDate = new Date(session.date);
+    untilDate.setDate(untilDate.getDate() - 1);
+    const until = untilDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    const recurrence = existing.data.recurrence || [];
+    const updatedRecurrence = recurrence.map((rule) => {
+      if (rule.startsWith('RRULE:')) {
+        const withoutUntil = rule.replace(/;UNTIL=[^;]+/, '');
+        return `${withoutUntil};UNTIL=${until}`;
+      }
+      return rule;
+    });
+    await calendar.events.patch({
+      calendarId,
+      eventId: baseId,
+      requestBody: { recurrence: updatedRecurrence },
+    });
+
+    // Create a new recurring event from this date with updated data
+    const originalEnd = existing.data.recurrence?.[0]?.match(/UNTIL=(\d{4})(\d{2})(\d{2})/);
+    const recurringEndDate = originalEnd
+      ? `${originalEnd[1]}-${originalEnd[2]}-${originalEnd[3]}`
+      : '';
+
+    const startTime = session.startTime || existing.data.start?.dateTime?.substring(11, 16) || '08:00';
+    const endTime = session.endTime || existing.data.end?.dateTime?.substring(11, 16) || '09:00';
+
+    const newEvent: calendar_v3.Schema$Event = {
+      summary: updateData.summary || existing.data.summary || '',
+      description: updateData.description || existing.data.description || '',
+      colorId: updateData.colorId || existing.data.colorId || '1',
+      start: {
+        dateTime: `${session.date}T${startTime}:00`,
+        timeZone: 'Europe/Warsaw',
+      },
+      end: {
+        dateTime: `${session.date}T${endTime}:00`,
+        timeZone: 'Europe/Warsaw',
+      },
+      extendedProperties: updateData.extendedProperties,
+    };
+
+    if (recurringEndDate) {
+      const endDateClean = recurringEndDate.replace(/-/g, '');
+      newEvent.recurrence = [`RRULE:FREQ=WEEKLY;UNTIL=${endDateClean}T235959Z`];
+    }
+
+    await calendar.events.insert({
+      calendarId,
+      requestBody: newEvent,
+    });
+  } else {
+    // Single instance or non-recurring — patch the specific event ID
+    await calendar.events.patch({
+      calendarId,
+      eventId,
+      requestBody: updateData,
+    });
+  }
 }
 
 export async function updateCalendarEventClients(
@@ -141,11 +224,9 @@ export async function updateCalendarEventClients(
     eventId,
     requestBody: {
       description: `Klienci: ${clientNames.join(', ') || 'Brak'}`,
-      extendedProperties: {
-        shared: {
-          clientNames: JSON.stringify(clientNames),
-        },
-      },
+      extendedProperties: buildExtendedProperties({
+        clientNames: JSON.stringify(clientNames),
+      }),
     },
   });
 }
@@ -161,11 +242,11 @@ export async function deleteCalendarEvent(
 
   if (editMode === 'all') {
     // Delete the entire recurring series — use base event ID
-    const baseId = eventId.replace(/_\d{8}T\d{6}Z$/, '');
+    const baseId = getBaseEventId(eventId);
     await calendar.events.delete({ calendarId, eventId: baseId });
   } else if (editMode === 'future' && instanceDate) {
     // End the recurrence just before this instance
-    const baseId = eventId.replace(/_\d{8}T\d{6}Z$/, '');
+    const baseId = getBaseEventId(eventId);
     const untilDate = new Date(instanceDate);
     untilDate.setDate(untilDate.getDate() - 1);
     const until = untilDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
@@ -190,6 +271,14 @@ export async function deleteCalendarEvent(
     // Single instance or non-recurring — delete the specific event ID
     await calendar.events.delete({ calendarId, eventId });
   }
+}
+
+// Parse instructor name from event title as fallback
+// Title format: "[TYPE] - FirstName" e.g. "[SOLO] - Agnieszka"
+function parseInstructorFromTitle(summary: string | null | undefined): string {
+  if (!summary) return '';
+  const match = summary.match(/\]\s*-\s*(.+)$/);
+  return match ? match[1].trim() : '';
 }
 
 export async function getCalendarEvents(
@@ -221,17 +310,24 @@ export async function getCalendarEvents(
   } while (pageToken);
 
   return allItems
-    .filter((event) =>
-      event.extendedProperties?.shared?.sessionType ||
-      event.extendedProperties?.private?.sessionType
-    )
+    .filter((event) => {
+      // Check shared, private, or title pattern for session detection
+      const hasShared = !!event.extendedProperties?.shared?.sessionType;
+      const hasPrivate = !!event.extendedProperties?.private?.sessionType;
+      const hasSessionTitle = /^\[(Solo|Duo|Trio)\]\s*-\s*.+/.test(event.summary || '');
+      return hasShared || hasPrivate || hasSessionTitle;
+    })
     .map((event) => {
-      // Prefer shared properties (new), fall back to private (legacy events)
-      const props = event.extendedProperties?.shared?.sessionType
-        ? event.extendedProperties.shared
-        : event.extendedProperties!.private!;
+      // Merge shared + private properties, preferring shared
+      const sharedProps = event.extendedProperties?.shared || {};
+      const privateProps = event.extendedProperties?.private || {};
+      const props = { ...privateProps, ...sharedProps };
+
       const start = new Date(event.start?.dateTime || event.start?.date || '');
       const end = new Date(event.end?.dateTime || event.end?.date || '');
+
+      // Fallback: parse instructor name from event title
+      const titleInstructorName = parseInstructorFromTitle(event.summary);
 
       let clientIds: string[] = [];
       let clientNames: string[] = [];
@@ -247,6 +343,17 @@ export async function getCalendarEvents(
       } catch {
         clientNames = [];
       }
+
+      // Detect session type from properties or title
+      let sessionType = props.sessionType as SessionType;
+      if (!sessionType) {
+        const titleMatch = event.summary?.match(/^\[(Solo|Duo|Trio)\]/);
+        sessionType = (titleMatch ? titleMatch[1] : 'Solo') as SessionType;
+      }
+
+      // Detect recurring: event has recurringEventId if it's an instance of a recurring series
+      const isRecurringInstance = !!event.recurringEventId;
+      const isRecurring = props.isRecurring === 'true' || isRecurringInstance;
 
       return {
         id: event.id!,
@@ -264,13 +371,13 @@ export async function getCalendarEvents(
           hour12: false,
           timeZone: 'Europe/Warsaw',
         }),
-        type: props.sessionType as SessionType,
+        type: sessionType,
         instructorId: props.instructorId || '',
-        instructorName: props.instructorName || '',
+        instructorName: props.instructorName || titleInstructorName || '',
         clientIds,
         clientNames,
-        isRecurring: props.isRecurring === 'true',
-        recurringGroupId: props.recurringGroupId || null,
+        isRecurring,
+        recurringGroupId: props.recurringGroupId || event.recurringEventId || null,
         recurringEndDate: props.recurringEndDate || null,
         isOpenSession: props.isOpenSession === 'true',
         bookingToken: props.bookingToken || null,

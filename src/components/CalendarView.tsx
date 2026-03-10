@@ -231,8 +231,16 @@ export default function CalendarView() {
                         >
                           <div className="font-semibold text-[9px] leading-tight flex items-center gap-0.5">
                             {s.type.charAt(0)}
+                            {s.isRecurring && (
+                              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" strokeWidth="2.5" className="shrink-0">
+                                <path d="M17 1l4 4-4 4" />
+                                <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+                                <path d="M7 23l-4-4 4-4" />
+                                <path d="M21 13v2a4 4 0 0 1-4 4H3" />
+                              </svg>
+                            )}
                             {s.isOpenSession && (
-                              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="opacity-70">
+                              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2.5" className="shrink-0">
                                 <circle cx="12" cy="12" r="10" />
                                 <line x1="2" y1="12" x2="22" y2="12" />
                                 <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />

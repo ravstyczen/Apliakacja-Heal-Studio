@@ -194,6 +194,16 @@ export async function PUT(request: NextRequest) {
 
   try {
     const serviceToken = await getServiceToken();
+
+    // Resolve instructor color for calendar display
+    if (updateData.instructorId) {
+      const instructor = await findInstructor(serviceToken, updateData.instructorId);
+      if (instructor) {
+        updateData.instructorName = instructor.name;
+        updateData.instructorColor = instructor.color;
+      }
+    }
+
     await updateCalendarEvent(serviceToken, eventId, updateData, CALENDAR_ID);
     return NextResponse.json({ success: true });
   } catch (error: any) {
