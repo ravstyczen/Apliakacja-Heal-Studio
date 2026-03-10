@@ -299,6 +299,7 @@ export async function getCalendarEvents(
       timeMin: new Date(timeMin).toISOString(),
       timeMax: new Date(timeMax).toISOString(),
       singleEvents: true,
+      showDeleted: false,
       orderBy: 'startTime',
       maxResults: 2500,
       pageToken,

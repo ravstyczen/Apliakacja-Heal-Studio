@@ -7,7 +7,7 @@ import {
   deleteCalendarEvent,
   getCalendarEvents,
 } from '@/lib/google-calendar';
-import { getInstructorsFromSheet, createBooking, getAllBookings } from '@/lib/google-sheets';
+import { getInstructorsFromSheet, createBooking, getAllBookings, deleteSettlementByDetails } from '@/lib/google-sheets';
 import { SESSION_CLIENT_LIMITS } from '@/lib/types';
 import { getInstructorById } from '@/lib/instructors-data';
 import { Instructor } from '@/lib/types';
@@ -231,6 +231,9 @@ export async function DELETE(request: NextRequest) {
 
   const editMode = searchParams.get('editMode') as 'single' | 'future' | 'all' | null;
   const date = searchParams.get('date');
+  const instructorId = searchParams.get('instructorId');
+  const sessionType = searchParams.get('sessionType');
+  const startTime = searchParams.get('startTime');
 
   try {
     const serviceToken = await getServiceToken();
@@ -242,6 +245,23 @@ export async function DELETE(request: NextRequest) {
       editMode || undefined,
       date || undefined
     );
+
+    // Also clean up the settlement from the "Sesje" sheet immediately
+    if (SHEETS_ID && date && instructorId && sessionType) {
+      try {
+        await deleteSettlementByDetails(
+          serviceToken,
+          SHEETS_ID,
+          date,
+          instructorId,
+          sessionType,
+          editMode || 'single',
+          startTime || undefined
+        );
+      } catch {
+        // Non-critical: settlements will be corrected on next sync
+      }
+    }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

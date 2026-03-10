@@ -199,8 +199,13 @@ export async function clearSettlements(
       },
     });
   } catch {
-    // Sheet might not exist, initialize it
+    // Sheet might not exist — initialize it and retry the clear
     await initializeSessionsSheet(accessToken, spreadsheetId);
+    // Retry clearing after initialization to ensure no stale data remains
+    await sheets.spreadsheets.values.clear({
+      spreadsheetId,
+      range: `${SHEETS.SESSIONS}!A2:Z`,
+    });
   }
 }
 

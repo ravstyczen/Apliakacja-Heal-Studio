@@ -252,9 +252,13 @@ export default function SessionModal({
         sessionType: existingSession.type,
         startTime: existingSession.startTime,
       });
-      await fetch(`/api/sessions?${deleteParams}`, {
+      const res = await fetch(`/api/sessions?${deleteParams}`, {
         method: 'DELETE',
       });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Nie udało się usunąć sesji');
+      }
       onSaved();
     } catch (e: any) {
       setError(e.message || 'Wystąpił błąd');
@@ -274,7 +278,11 @@ export default function SessionModal({
         sessionType: existingSession.type,
         startTime: existingSession.startTime,
       });
-      await fetch(`/api/sessions?${deleteParams}`, { method: 'DELETE' });
+      const res = await fetch(`/api/sessions?${deleteParams}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Nie udało się usunąć sesji');
+      }
       onSaved();
     } catch (e: any) {
       setError(e.message || 'Wystąpił błąd');
