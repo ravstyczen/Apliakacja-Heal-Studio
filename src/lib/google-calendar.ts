@@ -49,7 +49,7 @@ export async function createCalendarEvent(
       timeZone: 'Europe/Warsaw',
     },
     extendedProperties: {
-      private: {
+      shared: {
         sessionType: session.type,
         instructorId: session.instructorId,
         instructorName: instructorName,
@@ -112,7 +112,7 @@ export async function updateCalendarEvent(
   }
 
   updateData.extendedProperties = {
-    private: {
+    shared: {
       ...(session.type && { sessionType: session.type }),
       ...(session.instructorId && { instructorId: session.instructorId }),
       ...(session.instructorName && { instructorName: session.instructorName }),
@@ -142,7 +142,7 @@ export async function updateCalendarEventClients(
     requestBody: {
       description: `Klienci: ${clientNames.join(', ') || 'Brak'}`,
       extendedProperties: {
-        private: {
+        shared: {
           clientNames: JSON.stringify(clientNames),
         },
       },
@@ -221,9 +221,15 @@ export async function getCalendarEvents(
   } while (pageToken);
 
   return allItems
-    .filter((event) => event.extendedProperties?.private?.sessionType)
+    .filter((event) =>
+      event.extendedProperties?.shared?.sessionType ||
+      event.extendedProperties?.private?.sessionType
+    )
     .map((event) => {
-      const props = event.extendedProperties!.private!;
+      // Prefer shared properties (new), fall back to private (legacy events)
+      const props = event.extendedProperties?.shared?.sessionType
+        ? event.extendedProperties.shared
+        : event.extendedProperties!.private!;
       const start = new Date(event.start?.dateTime || event.start?.date || '');
       const end = new Date(event.end?.dateTime || event.end?.date || '');
 
