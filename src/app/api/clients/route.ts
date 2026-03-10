@@ -26,12 +26,7 @@ export async function GET() {
   }
 
   try {
-    let clients = await getClients(serviceToken, SHEETS_ID);
-
-    // Filter out owner clients for regular instructors
-    if (instructor && !isOwnerOrAdmin(instructor.role)) {
-      clients = clients.filter((c) => !c.isOwnerClient);
-    }
+    const clients = await getClients(serviceToken, SHEETS_ID);
 
     return NextResponse.json(clients, {
       headers: { 'Cache-Control': 'no-store, must-revalidate' },
