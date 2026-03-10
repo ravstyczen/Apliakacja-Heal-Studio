@@ -329,6 +329,9 @@ export async function getCalendarEvents(
       const start = new Date(event.start?.dateTime || event.start?.date || '');
       const end = new Date(event.end?.dateTime || event.end?.date || '');
 
+      // Extract date in Warsaw timezone (consistent with startTime/endTime below)
+      const warsawDate = start.toLocaleDateString('sv-SE', { timeZone: 'Europe/Warsaw' }); // sv-SE gives yyyy-MM-dd
+
       // Fallback: parse instructor name from event title
       const titleInstructorName = parseInstructorFromTitle(event.summary);
 
@@ -361,7 +364,7 @@ export async function getCalendarEvents(
       return {
         id: event.id!,
         calendarEventId: event.id!,
-        date: start.toISOString().split('T')[0],
+        date: warsawDate,
         startTime: start.toLocaleTimeString('pl-PL', {
           hour: '2-digit',
           minute: '2-digit',

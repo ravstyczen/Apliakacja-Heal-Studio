@@ -74,11 +74,10 @@ export async function POST() {
     }
 
     // Write to Sheets using Service Account
-    if (settlementsToWrite.length > 0) {
-      await clearSettlements(serviceToken, SHEETS_ID);
-      for (const settlement of settlementsToWrite) {
-        await addSettlement(serviceToken, SHEETS_ID, settlement);
-      }
+    // Always clear first to remove ghost/stale settlements even when calendar is empty
+    await clearSettlements(serviceToken, SHEETS_ID);
+    for (const settlement of settlementsToWrite) {
+      await addSettlement(serviceToken, SHEETS_ID, settlement);
     }
 
     return NextResponse.json({ synced: settlementsToWrite.length, total: validEvents.length });
