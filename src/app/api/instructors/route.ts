@@ -33,6 +33,16 @@ export async function GET() {
         DEFAULT_INSTRUCTORS
       );
       instructors = DEFAULT_INSTRUCTORS;
+    } else {
+      // Ensure default instructors are present in the sheet
+      // (e.g. user added a new instructor but defaults weren't seeded)
+      const missingDefaults = DEFAULT_INSTRUCTORS.filter(
+        (def) => !instructors.some((i) => i.id === def.id || i.email === def.email)
+      );
+      if (missingDefaults.length > 0) {
+        instructors = [...instructors, ...missingDefaults];
+        await saveInstructorsToSheet(serviceToken, SHEETS_ID, instructors);
+      }
     }
 
     return NextResponse.json(instructors);
