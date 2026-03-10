@@ -240,7 +240,8 @@ export async function deleteSettlementByDetails(
   date: string,
   instructorId: string,
   sessionType: string,
-  mode: 'single' | 'all' | 'future' = 'single'
+  mode: 'single' | 'all' | 'future' = 'single',
+  startTime?: string
 ): Promise<void> {
   const sheets = getSheetsClient(accessToken);
   const settlements = await getSettlements(accessToken, spreadsheetId);
@@ -249,9 +250,12 @@ export async function deleteSettlementByDetails(
   const matchingIndices: number[] = [];
   settlements.forEach((s, index) => {
     if (s.instructorId !== instructorId || s.sessionType !== sessionType) return;
+    // When startTime is provided, also match by time to distinguish
+    // sessions of the same type at different hours
+    if (startTime && s.time && s.time !== startTime) return;
     if (mode === 'single' && s.date !== date) return;
     if (mode === 'future' && s.date < date) return;
-    // mode === 'all' matches all dates for this instructor+type
+    // mode === 'all' matches all dates for this instructor+type+time
     matchingIndices.push(index);
   });
 

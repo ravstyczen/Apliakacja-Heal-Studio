@@ -250,6 +250,7 @@ export default function SessionModal({
         date: existingSession.date,
         instructorId: existingSession.instructorId,
         sessionType: existingSession.type,
+        startTime: existingSession.startTime,
       });
       await fetch(`/api/sessions?${deleteParams}`, {
         method: 'DELETE',
@@ -271,6 +272,7 @@ export default function SessionModal({
         date: existingSession.date,
         instructorId: existingSession.instructorId,
         sessionType: existingSession.type,
+        startTime: existingSession.startTime,
       });
       await fetch(`/api/sessions?${deleteParams}`, { method: 'DELETE' });
       onSaved();

@@ -267,6 +267,7 @@ export async function DELETE(request: NextRequest) {
   const date = searchParams.get('date');
   const instructorId = searchParams.get('instructorId');
   const sessionType = searchParams.get('sessionType');
+  const startTime = searchParams.get('startTime');
 
   try {
     const serviceToken = await getServiceToken();
@@ -281,7 +282,7 @@ export async function DELETE(request: NextRequest) {
 
     // Remove corresponding settlement entries
     if (SHEETS_ID && date && instructorId && sessionType) {
-      await deleteSettlementByDetails(serviceToken, SHEETS_ID, date, instructorId, sessionType, editMode || 'single');
+      await deleteSettlementByDetails(serviceToken, SHEETS_ID, date, instructorId, sessionType, editMode || 'single', startTime || undefined);
     }
 
     return NextResponse.json({ success: true });
