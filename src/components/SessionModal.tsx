@@ -41,8 +41,11 @@ export default function SessionModal({
   const [startHour, setStartHour] = useState(
     existingSession ? parseInt(existingSession.startTime.split(':')[0]) : defaultHour || 8
   );
+  // Use explicit check for non-empty string — empty string should NOT fall back to current user
   const [instructorId, setInstructorId] = useState(
-    existingSession?.instructorId || currentInstructor?.id || ''
+    (existingSession?.instructorId && existingSession.instructorId.length > 0)
+      ? existingSession.instructorId
+      : currentInstructor?.id || ''
   );
   const [selectedClients, setSelectedClients] = useState<Client[]>([]);
   const [isRecurring, setIsRecurring] = useState(existingSession?.isRecurring || false);
@@ -91,9 +94,18 @@ export default function SessionModal({
 
   const maxClients = SESSION_CLIENT_LIMITS[type];
 
-  const availableInstructors = currentInstructor && isOwnerOrAdmin(currentInstructor.role)
+  const isAdmin = currentInstructor && isOwnerOrAdmin(currentInstructor.role);
+  // When editing: if session belongs to a different instructor, show them as read-only
+  const sessionInstructor = isEdit
+    ? allInstructors.find((i) => i.id === existingSession?.instructorId)
+    : null;
+  const isOtherInstructorSession = isEdit && sessionInstructor && sessionInstructor.id !== currentInstructor?.id;
+
+  const availableInstructors = isAdmin
     ? allInstructors
-    : allInstructors.filter((i) => i.id === currentInstructor?.id);
+    : isOtherInstructorSession
+      ? [sessionInstructor!] // Show the actual session instructor (read-only)
+      : allInstructors.filter((i) => i.id === currentInstructor?.id);
 
   const selectedInstructor = allInstructors.find((i) => i.id === instructorId);
 
@@ -412,12 +424,13 @@ export default function SessionModal({
               {availableInstructors.map((instr) => (
                 <button
                   key={instr.id}
-                  onClick={() => setInstructorId(instr.id)}
+                  onClick={() => !isOtherInstructorSession && setInstructorId(instr.id)}
+                  disabled={!!isOtherInstructorSession}
                   className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-colors ${
                     instructorId === instr.id
                       ? 'border-heal-primary bg-heal-primary/5'
                       : 'border-heal-light'
-                  }`}
+                  } ${isOtherInstructorSession ? 'opacity-70 cursor-not-allowed' : ''}`}
                 >
                   <div
                     className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold"

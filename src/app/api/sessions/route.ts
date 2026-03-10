@@ -68,6 +68,39 @@ export async function GET(request: NextRequest) {
       CALENDAR_ID
     );
 
+    // Resolve missing instructorId/instructorName from instructor database
+    // Extended properties may be missing on recurring event instances
+    let allInstructors: Instructor[] | null = null;
+    for (const event of events) {
+      if (!event.instructorId && event.instructorName) {
+        // Lazy-load instructor list only when needed
+        if (!allInstructors) {
+          allInstructors = [];
+          try {
+            if (SHEETS_ID) {
+              allInstructors = await getInstructorsFromSheet(serviceToken, SHEETS_ID);
+            }
+          } catch { /* fall through */ }
+          // Add default instructors
+          const { DEFAULT_INSTRUCTORS } = await import('@/lib/instructors-data');
+          for (const di of DEFAULT_INSTRUCTORS) {
+            if (!allInstructors.some((i) => i.id === di.id)) {
+              allInstructors.push(di);
+            }
+          }
+        }
+        // Match by first name (parsed from title) or full name
+        const matched = allInstructors.find((i) =>
+          i.name === event.instructorName ||
+          i.name.split(' ')[0] === event.instructorName
+        );
+        if (matched) {
+          event.instructorId = matched.id;
+          event.instructorName = matched.name;
+        }
+      }
+    }
+
     // Merge booking signups into open sessions
     if (SHEETS_ID) {
       const openSessions = events.filter((e) => e.isOpenSession && e.bookingToken);
