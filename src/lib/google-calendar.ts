@@ -311,6 +311,8 @@ export async function getCalendarEvents(
 
   return allItems
     .filter((event) => {
+      // Skip cancelled/deleted events (ghost instances of recurring series)
+      if (event.status === 'cancelled') return false;
       // Check shared, private, or title pattern for session detection
       const hasShared = !!event.extendedProperties?.shared?.sessionType;
       const hasPrivate = !!event.extendedProperties?.private?.sessionType;
