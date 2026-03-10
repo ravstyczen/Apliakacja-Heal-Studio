@@ -1,6 +1,5 @@
 import { google, calendar_v3 } from 'googleapis';
-import { Session, SessionType, RecurringEditMode, getCalendarEventTitle } from './types';
-import { getInstructorById } from './instructors-data';
+import { Session, SessionType, RecurringEditMode, getCalendarEventTitle, Instructor } from './types';
 
 // Google Calendar color IDs mapping (approximate)
 // See: https://developers.google.com/calendar/api/v3/reference/colors
@@ -27,16 +26,20 @@ export async function createCalendarEvent(
   calendarId: string = 'primary'
 ): Promise<string> {
   const calendar = getCalendarClient(accessToken);
-  const instructor = getInstructorById(session.instructorId);
-  if (!instructor) throw new Error('Instructor not found');
 
-  const firstName = instructor.name.split(' ')[0];
+  // Use instructorName from session data (resolved from sheet by the API route)
+  const instructorName = session.instructorName || session.instructorId;
+  const firstName = instructorName.split(' ')[0];
   const title = getCalendarEventTitle(session.type, firstName);
+  // Use instructorColor if provided, otherwise try to match from known colors
+  const colorId = session.instructorColor
+    ? getCalendarColorId(session.instructorColor)
+    : '1';
 
   const event: calendar_v3.Schema$Event = {
     summary: title,
     description: `Klienci: ${session.clientNames.join(', ') || 'Brak'}`,
-    colorId: getCalendarColorId(instructor.color),
+    colorId,
     start: {
       dateTime: `${session.date}T${session.startTime}:00`,
       timeZone: 'Europe/Warsaw',
@@ -49,6 +52,7 @@ export async function createCalendarEvent(
       private: {
         sessionType: session.type,
         instructorId: session.instructorId,
+        instructorName: instructorName,
         clientIds: JSON.stringify(session.clientIds),
         clientNames: JSON.stringify(session.clientNames),
         isRecurring: String(session.isRecurring),
@@ -80,19 +84,16 @@ export async function updateCalendarEvent(
   calendarId: string = 'primary'
 ): Promise<void> {
   const calendar = getCalendarClient(accessToken);
-  const instructor = session.instructorId
-    ? getInstructorById(session.instructorId)
-    : undefined;
 
   const updateData: calendar_v3.Schema$Event = {};
 
-  if (session.type && instructor) {
-    const firstName = instructor.name.split(' ')[0];
+  if (session.type && session.instructorName) {
+    const firstName = session.instructorName.split(' ')[0];
     updateData.summary = getCalendarEventTitle(session.type, firstName);
   }
 
-  if (instructor) {
-    updateData.colorId = getCalendarColorId(instructor.color);
+  if (session.instructorColor) {
+    updateData.colorId = getCalendarColorId(session.instructorColor);
   }
 
   if (session.date && session.startTime && session.endTime) {
@@ -114,6 +115,7 @@ export async function updateCalendarEvent(
     private: {
       ...(session.type && { sessionType: session.type }),
       ...(session.instructorId && { instructorId: session.instructorId }),
+      ...(session.instructorName && { instructorName: session.instructorName }),
       ...(session.clientIds && { clientIds: JSON.stringify(session.clientIds) }),
       ...(session.clientNames && { clientNames: JSON.stringify(session.clientNames) }),
     },
@@ -258,7 +260,7 @@ export async function getCalendarEvents(
         }),
         type: props.sessionType as SessionType,
         instructorId: props.instructorId || '',
-        instructorName: getInstructorById(props.instructorId || '')?.name || '',
+        instructorName: props.instructorName || '',
         clientIds,
         clientNames,
         isRecurring: props.isRecurring === 'true',

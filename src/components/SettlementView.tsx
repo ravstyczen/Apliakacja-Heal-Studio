@@ -10,11 +10,12 @@ import {
   Instructor,
   isOwnerOrAdmin,
 } from '@/lib/types';
-import { DEFAULT_INSTRUCTORS } from '@/lib/instructors-data';
+import { useInstructors } from '@/lib/useInstructors';
 
 export default function SettlementView() {
   const { data: session } = useSession();
   const instructor = (session as any)?.instructor as Instructor | null;
+  const allInstructors = useInstructors();
   const isAdmin = instructor && isOwnerOrAdmin(instructor.role);
 
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -90,7 +91,7 @@ export default function SettlementView() {
   };
 
   const getInstructorColor = (id: string) => {
-    return DEFAULT_INSTRUCTORS.find((i) => i.id === id)?.color || '#999';
+    return allInstructors.find((i) => i.id === id)?.color || '#999';
   };
 
   const totalHours = monthlyData.reduce((sum, m) => sum + m.totalHours, 0);
@@ -141,7 +142,7 @@ export default function SettlementView() {
             >
               Wszyscy
             </button>
-            {DEFAULT_INSTRUCTORS.map((instr) => (
+            {allInstructors.map((instr) => (
               <button
                 key={instr.id}
                 onClick={() => setSelectedInstructorId(instr.id)}

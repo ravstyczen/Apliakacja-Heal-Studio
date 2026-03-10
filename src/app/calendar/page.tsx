@@ -29,6 +29,27 @@ export default function CalendarPage() {
     return null;
   }
 
+  // Block users whose email is not on the instructor list
+  if (status === 'authenticated' && !instructor) {
+    return (
+      <div className="min-h-screen min-h-[100dvh] flex flex-col items-center justify-center bg-heal-bg px-6 text-center">
+        <h1 className="font-display text-2xl font-bold text-heal-primary tracking-[0.15em] mb-2">
+          HEAL
+        </h1>
+        <p className="text-sm text-gray-500 mb-6">
+          Twoje konto ({session?.user?.email}) nie ma dostępu do aplikacji.<br />
+          Skontaktuj się z właścicielem studia.
+        </p>
+        <button
+          onClick={() => signOut({ callbackUrl: '/' })}
+          className="btn-primary px-6 py-2"
+        >
+          Wyloguj
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen min-h-[100dvh] bg-heal-bg flex flex-col">
       {/* Top bar */}

@@ -17,11 +17,6 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const instructor = (session as any).instructor;
-  if (!instructor || !isOwnerOrAdmin(instructor.role)) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-
   const serviceToken = await getServiceAuth();
   if (!serviceToken) {
     return NextResponse.json({ error: 'Service account unavailable' }, { status: 500 });

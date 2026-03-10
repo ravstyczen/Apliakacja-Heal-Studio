@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { Instructor, isOwnerOrAdmin } from '@/lib/types';
-import { DEFAULT_INSTRUCTORS } from '@/lib/instructors-data';
 
 export default function InstructorSettings() {
   const { data: session } = useSession();
@@ -24,8 +23,7 @@ export default function InstructorSettings() {
         setInstructors(data);
       }
     } catch (e) {
-      // Fallback to defaults
-      setInstructors(DEFAULT_INSTRUCTORS);
+      console.error('Failed to fetch instructors:', e);
     }
     setLoading(false);
   }, []);

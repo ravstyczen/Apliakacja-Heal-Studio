@@ -1,6 +1,9 @@
 import { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import { getInstructorByEmail } from './instructors-data';
+import { getInstructorsFromSheet } from './google-sheets';
+import { getServiceAuth } from './service-auth';
+import { Instructor } from './types';
 
 async function refreshAccessToken(token: any) {
   try {
@@ -28,6 +31,26 @@ async function refreshAccessToken(token: any) {
   } catch (error) {
     console.error('Error refreshing access token', error);
     return { ...token, error: 'RefreshAccessTokenError' };
+  }
+}
+
+async function findInstructorByEmail(email: string): Promise<Instructor | null> {
+  // Check hardcoded defaults first (fast path)
+  const hardcoded = getInstructorByEmail(email);
+  if (hardcoded) return hardcoded;
+
+  // Check the Google Sheet (source of truth for dynamically added instructors)
+  try {
+    const sheetsId = process.env.GOOGLE_SHEETS_ID;
+    if (!sheetsId) return null;
+
+    const serviceToken = await getServiceAuth();
+    if (!serviceToken) return null;
+
+    const sheetInstructors = await getInstructorsFromSheet(serviceToken, sheetsId);
+    return sheetInstructors.find((i) => i.email === email) || null;
+  } catch {
+    return null;
   }
 }
 
@@ -65,7 +88,7 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user?.email) {
-        const instructor = getInstructorByEmail(session.user.email);
+        const instructor = await findInstructorByEmail(session.user.email);
         (session as any).accessToken = token.accessToken;
         (session as any).instructor = instructor || null;
         (session as any).error = token.error || null;

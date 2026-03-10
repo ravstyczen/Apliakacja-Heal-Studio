@@ -44,6 +44,7 @@ export interface Session {
   type: SessionType;
   instructorId: string;
   instructorName: string;
+  instructorColor?: string;
   clientIds: string[];
   clientNames: string[];
   isRecurring: boolean;

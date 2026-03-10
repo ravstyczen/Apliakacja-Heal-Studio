@@ -11,7 +11,7 @@ import {
   SESSION_CLIENT_LIMITS,
   RecurringEditMode,
 } from '@/lib/types';
-import { DEFAULT_INSTRUCTORS } from '@/lib/instructors-data';
+import { useInstructors } from '@/lib/useInstructors';
 import ClientPickerModal from './ClientPickerModal';
 
 interface SessionModalProps {
@@ -33,6 +33,7 @@ export default function SessionModal({
 }: SessionModalProps) {
   const { data: authSession } = useSession();
   const currentInstructor = (authSession as any)?.instructor as Instructor | null;
+  const allInstructors = useInstructors();
   const isEdit = !!existingSession;
 
   const [type, setType] = useState<SessionType>(existingSession?.type || 'Solo');
@@ -91,10 +92,10 @@ export default function SessionModal({
   const maxClients = SESSION_CLIENT_LIMITS[type];
 
   const availableInstructors = currentInstructor && isOwnerOrAdmin(currentInstructor.role)
-    ? DEFAULT_INSTRUCTORS
-    : DEFAULT_INSTRUCTORS.filter((i) => i.id === currentInstructor?.id);
+    ? allInstructors
+    : allInstructors.filter((i) => i.id === currentInstructor?.id);
 
-  const selectedInstructor = DEFAULT_INSTRUCTORS.find((i) => i.id === instructorId);
+  const selectedInstructor = allInstructors.find((i) => i.id === instructorId);
 
   const handleSave = async () => {
     setError('');

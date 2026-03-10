@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react';
 import { format, addDays, startOfWeek, isToday } from 'date-fns';
 import { pl } from 'date-fns/locale';
 import { Session as SessionType, Instructor } from '@/lib/types';
-import { DEFAULT_INSTRUCTORS } from '@/lib/instructors-data';
+import { useInstructors } from '@/lib/useInstructors';
 import SessionModal from './SessionModal';
 
 const HOURS = Array.from({ length: 13 }, (_, i) => i + 8); // 8:00 - 20:00
@@ -13,6 +13,7 @@ const HOURS = Array.from({ length: 13 }, (_, i) => i + 8); // 8:00 - 20:00
 export default function CalendarView() {
   const { data: session } = useSession();
   const instructor = (session as any)?.instructor as Instructor | null;
+  const allInstructors = useInstructors();
 
   const [weekStart, setWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
   const [sessions, setSessions] = useState<SessionType[]>([]);
@@ -82,7 +83,7 @@ export default function CalendarView() {
   };
 
   const getInstructorColor = (instructorId: string): string => {
-    const instr = DEFAULT_INSTRUCTORS.find((i) => i.id === instructorId);
+    const instr = allInstructors.find((i) => i.id === instructorId);
     return instr?.color || '#999';
   };
 
@@ -150,7 +151,7 @@ export default function CalendarView() {
 
         {/* Instructor legend */}
         <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
-          {DEFAULT_INSTRUCTORS.map((instr) => (
+          {allInstructors.map((instr) => (
             <div key={instr.id} className="flex items-center gap-1.5 shrink-0">
               <div
                 className="instructor-dot"

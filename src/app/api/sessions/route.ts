@@ -120,15 +120,22 @@ export async function POST(request: NextRequest) {
   try {
     const serviceToken = await getServiceToken();
 
-    // Create calendar event
-    const eventData = body.isRecurring && body.recurringEndDate
+    // Resolve instructor from sheet for name/color
+    const instructor = await findInstructor(serviceToken, body.instructorId);
+
+    // Create calendar event with instructor info
+    const eventBase = body.isRecurring && body.recurringEndDate
       ? body
       : { ...body, isRecurring: false, recurringEndDate: null };
+    const eventData = {
+      ...eventBase,
+      instructorName: instructor?.name || body.instructorName || '',
+      instructorColor: instructor?.color || '',
+    };
     const eventId = await createCalendarEvent(serviceToken, eventData, CALENDAR_ID);
 
     // Write settlement to Sheets
     if (SHEETS_ID) {
-      const instructor = await findInstructor(serviceToken, body.instructorId);
       if (instructor) {
         const price = getSessionPrice(instructor.pricing, body.type);
         const share = getSessionShare(instructor.pricing, body.type);
@@ -154,7 +161,6 @@ export async function POST(request: NextRequest) {
 
       // Create booking record for open sessions
       if (body.isOpenSession && body.bookingToken) {
-        const bookingInstructor = await findInstructor(serviceToken, body.instructorId);
         await createBooking(serviceToken, SHEETS_ID, {
           token: body.bookingToken,
           calendarEventId: eventId,
@@ -162,7 +168,7 @@ export async function POST(request: NextRequest) {
           startTime: body.startTime || '',
           endTime: body.endTime || '',
           sessionType: body.type,
-          instructorName: bookingInstructor?.name || '',
+          instructorName: instructor?.name || '',
           maxSlots: SESSION_CLIENT_LIMITS[body.type as keyof typeof SESSION_CLIENT_LIMITS] || 1,
         });
       }
