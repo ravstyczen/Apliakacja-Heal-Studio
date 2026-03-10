@@ -279,9 +279,9 @@ export async function DELETE(request: NextRequest) {
       date || undefined
     );
 
-    // Remove corresponding settlement entry
+    // Remove corresponding settlement entries
     if (SHEETS_ID && date && instructorId && sessionType) {
-      await deleteSettlementByDetails(serviceToken, SHEETS_ID, date, instructorId, sessionType);
+      await deleteSettlementByDetails(serviceToken, SHEETS_ID, date, instructorId, sessionType, editMode || 'single');
     }
 
     return NextResponse.json({ success: true });

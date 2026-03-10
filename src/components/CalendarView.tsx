@@ -49,9 +49,9 @@ export default function CalendarView() {
     fetchSessions();
   }, [fetchSessions]);
 
-  // Poll for changes every 60 seconds in the background (no loading spinner)
+  // Poll for changes every 15 seconds in the background (no loading spinner)
   useEffect(() => {
-    const interval = setInterval(() => fetchSessions(true), 60_000);
+    const interval = setInterval(() => fetchSessions(true), 15_000);
     return () => clearInterval(interval);
   }, [fetchSessions]);
 

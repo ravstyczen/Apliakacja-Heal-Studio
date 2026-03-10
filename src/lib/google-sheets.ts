@@ -239,15 +239,23 @@ export async function deleteSettlementByDetails(
   spreadsheetId: string,
   date: string,
   instructorId: string,
-  sessionType: string
+  sessionType: string,
+  mode: 'single' | 'all' | 'future' = 'single'
 ): Promise<void> {
   const sheets = getSheetsClient(accessToken);
   const settlements = await getSettlements(accessToken, spreadsheetId);
-  const rowIndex = settlements.findIndex(
-    (s) => s.date === date && s.instructorId === instructorId && s.sessionType === sessionType
-  );
 
-  if (rowIndex === -1) return;
+  // Find matching row indices based on mode
+  const matchingIndices: number[] = [];
+  settlements.forEach((s, index) => {
+    if (s.instructorId !== instructorId || s.sessionType !== sessionType) return;
+    if (mode === 'single' && s.date !== date) return;
+    if (mode === 'future' && s.date < date) return;
+    // mode === 'all' matches all dates for this instructor+type
+    matchingIndices.push(index);
+  });
+
+  if (matchingIndices.length === 0) return;
 
   const spreadsheet = await sheets.spreadsheets.get({ spreadsheetId });
   const sheet = spreadsheet.data.sheets?.find(
@@ -255,22 +263,23 @@ export async function deleteSettlementByDetails(
   );
   if (!sheet?.properties?.sheetId) return;
 
+  // Delete rows in reverse order so indices don't shift
+  const requests = matchingIndices
+    .sort((a, b) => b - a)
+    .map((rowIndex) => ({
+      deleteDimension: {
+        range: {
+          sheetId: sheet.properties!.sheetId!,
+          dimension: 'ROWS' as const,
+          startIndex: rowIndex + 1, // +1 for header
+          endIndex: rowIndex + 2,
+        },
+      },
+    }));
+
   await sheets.spreadsheets.batchUpdate({
     spreadsheetId,
-    requestBody: {
-      requests: [
-        {
-          deleteDimension: {
-            range: {
-              sheetId: sheet.properties.sheetId,
-              dimension: 'ROWS',
-              startIndex: rowIndex + 1, // +1 for header
-              endIndex: rowIndex + 2,
-            },
-          },
-        },
-      ],
-    },
+    requestBody: { requests },
   });
 }
 

@@ -54,9 +54,9 @@ export default function ClientList() {
     fetchClients();
   }, [fetchClients]);
 
-  // Poll for changes every 60 seconds in the background (no loading spinner)
+  // Poll for changes every 15 seconds in the background (no loading spinner)
   useEffect(() => {
-    const interval = setInterval(() => fetchClients(true), 60_000);
+    const interval = setInterval(() => fetchClients(true), 15_000);
     return () => clearInterval(interval);
   }, [fetchClients]);
 
