@@ -110,8 +110,8 @@ export default function SessionModal({
       return;
     }
 
-    // Regular instructors must assign clients
-    if (currentInstructor && !isOwnerOrAdmin(currentInstructor.role)) {
+    // Regular instructors must assign clients (unless it's an open session)
+    if (currentInstructor && !isOwnerOrAdmin(currentInstructor.role) && !isOpenSession) {
       if (selectedClients.length !== maxClients) {
         setError(`Sesja ${type} wymaga ${maxClients} klient${maxClients > 1 ? 'ów' : 'a'}`);
         return;
