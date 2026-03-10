@@ -7,10 +7,10 @@ import {
   deleteCalendarEvent,
   getCalendarEvents,
 } from '@/lib/google-calendar';
-import { addSettlement, deleteSettlementByDetails, getInstructorsFromSheet, createBooking, getAllBookings } from '@/lib/google-sheets';
+import { getInstructorsFromSheet, createBooking, getAllBookings } from '@/lib/google-sheets';
 import { SESSION_CLIENT_LIMITS } from '@/lib/types';
 import { getInstructorById } from '@/lib/instructors-data';
-import { Instructor, getSessionPrice, getSessionShare } from '@/lib/types';
+import { Instructor } from '@/lib/types';
 import { getServiceAuth } from '@/lib/service-auth';
 
 const CALENDAR_ID = process.env.GOOGLE_CALENDAR_ID || 'primary';
@@ -35,16 +35,6 @@ async function findInstructor(sheetsToken: string, instructorId: string): Promis
   return getInstructorById(instructorId);
 }
 
-function getWeeklyDates(startDate: string, endDate: string): string[] {
-  const dates: string[] = [];
-  const current = new Date(startDate + 'T00:00:00');
-  const end = new Date(endDate + 'T23:59:59');
-  while (current <= end) {
-    dates.push(current.toISOString().split('T')[0]);
-    current.setDate(current.getDate() + 7);
-  }
-  return dates;
-}
 
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -167,32 +157,8 @@ export async function POST(request: NextRequest) {
     };
     const eventId = await createCalendarEvent(serviceToken, eventData, CALENDAR_ID);
 
-    // Write settlement to Sheets
+    // Create booking record for open sessions
     if (SHEETS_ID) {
-      if (instructor) {
-        const price = getSessionPrice(instructor.pricing, body.type);
-        const share = getSessionShare(instructor.pricing, body.type);
-        const settlementBase = {
-          time: body.startTime || '',
-          sessionType: body.type,
-          instructorId: body.instructorId,
-          instructorName: instructor.name,
-          clientNames: body.clientNames || [],
-          price,
-          instructorShare: share,
-        };
-
-        if (body.isRecurring && body.recurringEndDate) {
-          const dates = getWeeklyDates(body.date, body.recurringEndDate);
-          for (const date of dates) {
-            await addSettlement(serviceToken, SHEETS_ID, { ...settlementBase, date });
-          }
-        } else {
-          await addSettlement(serviceToken, SHEETS_ID, { ...settlementBase, date: body.date });
-        }
-      }
-
-      // Create booking record for open sessions
       if (body.isOpenSession && body.bookingToken) {
         await createBooking(serviceToken, SHEETS_ID, {
           token: body.bookingToken,
@@ -265,9 +231,6 @@ export async function DELETE(request: NextRequest) {
 
   const editMode = searchParams.get('editMode') as 'single' | 'future' | 'all' | null;
   const date = searchParams.get('date');
-  const instructorId = searchParams.get('instructorId');
-  const sessionType = searchParams.get('sessionType');
-  const startTime = searchParams.get('startTime');
 
   try {
     const serviceToken = await getServiceToken();
@@ -279,11 +242,6 @@ export async function DELETE(request: NextRequest) {
       editMode || undefined,
       date || undefined
     );
-
-    // Remove corresponding settlement entries
-    if (SHEETS_ID && date && instructorId && sessionType) {
-      await deleteSettlementByDetails(serviceToken, SHEETS_ID, date, instructorId, sessionType, editMode || 'single', startTime || undefined);
-    }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

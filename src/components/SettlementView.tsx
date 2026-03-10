@@ -21,12 +21,11 @@ export default function SettlementView() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [monthlyData, setMonthlyData] = useState<MonthlySettlement[]>([]);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
   const [selectedInstructorId, setSelectedInstructorId] = useState<string | ''>('');
   const [expandedInstructor, setExpandedInstructor] = useState<string | null>(null);
 
   const monthStr = format(currentMonth, 'yyyy-MM');
-
-  const [hasSynced, setHasSynced] = useState(false);
 
   const fetchSettlements = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
@@ -38,7 +37,6 @@ export default function SettlementView() {
       const res = await fetch(url, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
-        // Only update state if data actually changed to avoid unnecessary re-renders
         setMonthlyData((prev) => {
           const newJson = JSON.stringify(data);
           const prevJson = JSON.stringify(prev);
@@ -51,37 +49,25 @@ export default function SettlementView() {
     if (!silent) setLoading(false);
   }, [monthStr, selectedInstructorId]);
 
-  // Sync settlements from calendar on first mount, then fetch
-  useEffect(() => {
-    if (hasSynced) return;
-    setHasSynced(true);
-    setLoading(true);
-    fetch('/api/settlements/sync', { method: 'POST' })
-      .then(() => fetchSettlements())
-      .catch(() => fetchSettlements());
-  }, [hasSynced, fetchSettlements]);
-
-  // Refetch when month or instructor filter changes (skip initial render until sync is done)
-  useEffect(() => {
-    if (!hasSynced) return;
-    fetchSettlements();
-  }, [fetchSettlements, hasSynced]);
-
-  // Poll for changes every 60 seconds in the background (no loading spinner)
-  useEffect(() => {
-    const interval = setInterval(() => fetchSettlements(true), 60_000);
-    return () => clearInterval(interval);
+  const syncSettlements = useCallback(async () => {
+    setSyncing(true);
+    try {
+      await fetch('/api/settlements/sync', { method: 'POST' });
+      await fetchSettlements();
+    } catch {
+      await fetchSettlements();
+    }
+    setSyncing(false);
   }, [fetchSettlements]);
 
-  // Refetch silently when app becomes visible (e.g. switching between devices/apps)
+  // Sync on mount
   useEffect(() => {
-    const handleVisibility = () => {
-      if (document.visibilityState === 'visible') {
-        fetchSettlements(true);
-      }
-    };
-    document.addEventListener('visibilitychange', handleVisibility);
-    return () => document.removeEventListener('visibilitychange', handleVisibility);
+    syncSettlements();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Refetch when month or instructor filter changes
+  useEffect(() => {
+    fetchSettlements();
   }, [fetchSettlements]);
 
   const navigateMonth = (direction: number) => {
@@ -102,9 +88,32 @@ export default function SettlementView() {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="sticky top-0 bg-heal-bg z-10 px-4 pt-4 pb-3">
-        <h2 className="font-display text-xl font-semibold text-heal-dark mb-4">
-          Rozliczenia
-        </h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-display text-xl font-semibold text-heal-dark">
+            Rozliczenia
+          </h2>
+          <button
+            onClick={syncSettlements}
+            disabled={syncing}
+            className="text-xs font-medium text-heal-primary bg-heal-primary/10 px-3 py-1.5 rounded-full flex items-center gap-1.5 disabled:opacity-50"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className={syncing ? 'animate-spin' : ''}
+            >
+              <path d="M17 1l4 4-4 4" />
+              <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+              <path d="M7 23l-4-4 4-4" />
+              <path d="M21 13v2a4 4 0 0 1-4 4H3" />
+            </svg>
+            {syncing ? 'Przeliczam...' : 'Przelicz'}
+          </button>
+        </div>
 
         {/* Month navigation */}
         <div className="flex items-center justify-between bg-white rounded-xl p-3 shadow-sm mb-3">
