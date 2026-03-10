@@ -71,6 +71,27 @@ export default function SessionModal({
     fetchClients();
   }, []);
 
+  // Fix instructor resolution: when allInstructors loads, correct instructorId
+  // if it defaulted to the logged-in user but the session belongs to someone else
+  useEffect(() => {
+    if (!isEdit || !existingSession || allInstructors.length === 0) return;
+    // If session has an instructorId that matches a known instructor, use it
+    if (existingSession.instructorId && allInstructors.some((i) => i.id === existingSession.instructorId)) {
+      setInstructorId(existingSession.instructorId);
+      return;
+    }
+    // Fallback: resolve by instructorName
+    if (existingSession.instructorName) {
+      const matched = allInstructors.find((i) =>
+        i.name === existingSession.instructorName ||
+        i.name.split(' ')[0] === existingSession.instructorName
+      );
+      if (matched) {
+        setInstructorId(matched.id);
+      }
+    }
+  }, [allInstructors, existingSession, isEdit]);
+
   useEffect(() => {
     if (existingSession && clients.length > 0) {
       const matched = existingSession.clientIds
@@ -217,6 +238,7 @@ export default function SessionModal({
     if (!existingSession) return;
 
     if (existingSession.isRecurring) {
+      setDeleting(true);
       setShowRecurringEdit(true);
       return;
     }
@@ -305,7 +327,7 @@ export default function SessionModal({
 
           <div className="flex gap-3">
             <button
-              onClick={() => setShowRecurringEdit(false)}
+              onClick={() => { setShowRecurringEdit(false); setDeleting(false); }}
               className="btn-secondary flex-1"
             >
               Anuluj
