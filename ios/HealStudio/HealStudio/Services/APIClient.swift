@@ -17,34 +17,43 @@ enum APIError: LocalizedError {
         switch self {
         case .invalidResponse:
             return "Nieprawidlowa odpowiedz serwera"
-        case .httpError(let code, _):
-            return "Blad HTTP: \(code)"
+        case .httpError(let code, let data):
+            let body = String(data: data, encoding: .utf8) ?? ""
+            return "Blad HTTP \(code): \(body)"
         case .noAuthToken:
-            return "Brak tokenu autoryzacji"
+            return "Brak tokenu autoryzacji. Zaloguj sie ponownie."
         case .decodingError(let error):
             return "Blad dekodowania: \(error.localizedDescription)"
         }
     }
 }
 
+struct APIConfig {
+    // TODO: Replace with your deployed Next.js app URL
+    // Find this in your .env.local as NEXTAUTH_URL or APP_URL
+    static let productionURL = "https://YOUR-APP.vercel.app"
+
+    static var baseURL: URL {
+        #if DEBUG
+        return URL(string: "http://localhost:3000")!
+        #else
+        return URL(string: productionURL)!
+        #endif
+    }
+}
+
 actor APIClient {
     static let shared = APIClient()
 
-    #if DEBUG
-    private let baseURL = URL(string: "http://localhost:3000")!
-    #else
-    private let baseURL = URL(string: "https://your-production-url.com")!
-    #endif
-
-    private let session = URLSession.shared
-    private let decoder: JSONDecoder = {
-        let d = JSONDecoder()
-        return d
+    private let baseURL = APIConfig.baseURL
+    private let session: URLSession = {
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 30
+        config.timeoutIntervalForResource = 60
+        return URLSession(configuration: config)
     }()
-    private let encoder: JSONEncoder = {
-        let e = JSONEncoder()
-        return e
-    }()
+    private let decoder = JSONDecoder()
+    private let encoder = JSONEncoder()
 
     func request<T: Decodable>(
         _ method: HTTPMethod,

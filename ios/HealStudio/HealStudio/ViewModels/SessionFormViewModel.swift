@@ -33,11 +33,7 @@ final class SessionFormViewModel {
 
     var bookingURL: String? {
         guard isOpenSession, let token = bookingToken else { return nil }
-        #if DEBUG
-        return "http://localhost:3000/book/\(token)"
-        #else
-        return "https://your-production-url.com/book/\(token)"
-        #endif
+        return "\(APIConfig.baseURL.absoluteString)/book/\(token)"
     }
 
     var canSave: Bool {
