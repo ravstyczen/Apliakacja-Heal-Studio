@@ -1,18 +1,17 @@
-import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
 import { getCalendarEvents } from '@/lib/google-calendar';
 import { clearSettlements, addSettlement, getInstructorsFromSheet } from '@/lib/google-sheets';
 import { getInstructorById } from '@/lib/instructors-data';
 import { Instructor, getSessionPrice, getSessionShare } from '@/lib/types';
 import { getServiceAuth } from '@/lib/service-auth';
+import { getAuthenticatedInstructor } from '@/lib/auth-mobile';
 
 const CALENDAR_ID = process.env.GOOGLE_CALENDAR_ID || 'primary';
 const SHEETS_ID = process.env.GOOGLE_SHEETS_ID || '';
 
-export async function POST() {
-  const session = await getServerSession(authOptions);
-  if (!session) {
+export async function POST(request: NextRequest) {
+  const { email } = await getAuthenticatedInstructor(request);
+  if (!email) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

@@ -1,19 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { getSettlements, getMonthlySettlement } from '@/lib/google-sheets';
 import { isOwnerOrAdmin } from '@/lib/types';
 import { getServiceAuth } from '@/lib/service-auth';
+import { getAuthenticatedInstructor } from '@/lib/auth-mobile';
 
 const SHEETS_ID = process.env.GOOGLE_SHEETS_ID || '';
 
 export async function GET(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
+  const { instructor, email } = await getAuthenticatedInstructor(request);
+  if (!email) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-
-  const instructor = (session as any).instructor;
   const { searchParams } = new URL(request.url);
   const month = searchParams.get('month') || undefined;
   const instructorId = searchParams.get('instructorId') || undefined;

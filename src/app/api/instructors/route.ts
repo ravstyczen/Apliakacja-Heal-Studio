@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import {
   getInstructorsFromSheet,
   saveInstructorsToSheet,
@@ -8,12 +6,13 @@ import {
 import { DEFAULT_INSTRUCTORS } from '@/lib/instructors-data';
 import { isOwnerOrAdmin } from '@/lib/types';
 import { getServiceAuth } from '@/lib/service-auth';
+import { getAuthenticatedInstructor } from '@/lib/auth-mobile';
 
 const SHEETS_ID = process.env.GOOGLE_SHEETS_ID || '';
 
-export async function GET() {
-  const session = await getServerSession(authOptions);
-  if (!session) {
+export async function GET(request: NextRequest) {
+  const { email } = await getAuthenticatedInstructor(request);
+  if (!email) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -53,12 +52,10 @@ export async function GET() {
 }
 
 export async function PUT(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
+  const { instructor, email } = await getAuthenticatedInstructor(request);
+  if (!email) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-
-  const instructor = (session as any).instructor;
   if (!instructor || !isOwnerOrAdmin(instructor.role)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }

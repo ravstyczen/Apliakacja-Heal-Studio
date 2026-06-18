@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import {
   getClients,
   addClient,
@@ -10,16 +8,15 @@ import {
 import { sendRegulationsEmail } from '@/lib/email';
 import { isOwnerOrAdmin } from '@/lib/types';
 import { getServiceAuth } from '@/lib/service-auth';
+import { getAuthenticatedInstructor } from '@/lib/auth-mobile';
 
 const SHEETS_ID = process.env.GOOGLE_SHEETS_ID || '';
 
-export async function GET() {
-  const session = await getServerSession(authOptions);
-  if (!session) {
+export async function GET(request: NextRequest) {
+  const { instructor, email } = await getAuthenticatedInstructor(request);
+  if (!email) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-
-  const instructor = (session as any).instructor;
   const serviceToken = await getServiceAuth();
   if (!serviceToken) {
     return NextResponse.json({ error: 'Service account unavailable' }, { status: 500 });
@@ -40,8 +37,8 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
+  const { email } = await getAuthenticatedInstructor(request);
+  if (!email) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -79,8 +76,8 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
+  const { email } = await getAuthenticatedInstructor(request);
+  if (!email) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -103,8 +100,8 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
+  const { email } = await getAuthenticatedInstructor(request);
+  if (!email) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

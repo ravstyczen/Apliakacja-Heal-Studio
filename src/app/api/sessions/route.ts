@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import {
   createCalendarEvent,
   updateCalendarEvent,
@@ -12,6 +10,7 @@ import { SESSION_CLIENT_LIMITS } from '@/lib/types';
 import { getInstructorById } from '@/lib/instructors-data';
 import { Instructor } from '@/lib/types';
 import { getServiceAuth } from '@/lib/service-auth';
+import { getAuthenticatedInstructor } from '@/lib/auth-mobile';
 
 const CALENDAR_ID = process.env.GOOGLE_CALENDAR_ID || 'primary';
 const SHEETS_ID = process.env.GOOGLE_SHEETS_ID || '';
@@ -37,8 +36,8 @@ async function findInstructor(sheetsToken: string, instructorId: string): Promis
 
 
 export async function GET(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
+  const { instructor: authInstructor, email } = await getAuthenticatedInstructor(request);
+  if (!email) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -133,8 +132,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
+  const { email } = await getAuthenticatedInstructor(request);
+  if (!email) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -183,8 +182,8 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
+  const { email } = await getAuthenticatedInstructor(request);
+  if (!email) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -214,8 +213,8 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
+  const { email } = await getAuthenticatedInstructor(request);
+  if (!email) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
