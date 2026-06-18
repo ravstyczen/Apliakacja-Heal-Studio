@@ -1,0 +1,532 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		8CA9B42EFAA2F467DC47686D /* HealStudioApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73B7BABB0B103310ACF86943 /* HealStudioApp.swift */; };
+		EB0A9D809848BF49C952BFFD /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B56044E41D14E4F6A23A4DA /* ContentView.swift */; };
+		27DF72112B5991DAD5BBF4DC /* Instructor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 099365B3D403BEC232EBAD3E /* Instructor.swift */; };
+		C2A4F937E3D865120180EE22 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01D84249F4DBFA2B15BA1107 /* Session.swift */; };
+		7A2828F641519A9114817371 /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = D396EA717A8C4796DF4732F4 /* Client.swift */; };
+		98BA956500877B782FF289B9 /* Settlement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 699BBAF2DBD767639BFCBCEE /* Settlement.swift */; };
+		BCBA0E254C7CE735520A2ADA /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C59FFCCA139C4697C8D64B82 /* APIClient.swift */; };
+		DF78E7BE86A5CD2918A1F92F /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C596E48379E27008DD3698BD /* AuthService.swift */; };
+		95FD3EA1D3FA7AC5CDF428E7 /* SessionsAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30F292B82070D62E8726AB98 /* SessionsAPI.swift */; };
+		B6E6E2EAED91343B8F4973C9 /* ClientsAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E8A21CB0D3AE09D6555C1F8 /* ClientsAPI.swift */; };
+		164324049D348C703772F8DA /* InstructorsAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD57CA0F696E55EAA66FB73C /* InstructorsAPI.swift */; };
+		8E66C44EAFC9EFC5A0EA3951 /* SettlementsAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0397E6BE6BC47D7A3B943FC3 /* SettlementsAPI.swift */; };
+		2EE2D77DFBBB8305A0B9150D /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D87A9F97AF01D20885094A5 /* AuthViewModel.swift */; };
+		7ED98ED6309670124AE9E2A0 /* CalendarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C33D37D99986878DD0CAC715 /* CalendarViewModel.swift */; };
+		42A93308F2857789EEC48F39 /* SessionFormViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6215D7DF68E12D5465B50CA0 /* SessionFormViewModel.swift */; };
+		1DE4EF620722F95C17DC484E /* ClientListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68F3F9E417837DDF653828EA /* ClientListViewModel.swift */; };
+		B65B7F223450FE5E6F1434D9 /* ClientFormViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 260B3274A38479BC8A06E1DA /* ClientFormViewModel.swift */; };
+		D4683764DA6F0E450765EFFC /* SettlementViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82A15B6C9AE5875B9E228535 /* SettlementViewModel.swift */; };
+		531CD41DDF5D33BDACEDD127 /* InstructorSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE43BC049ABC4AE8E2F492A /* InstructorSettingsViewModel.swift */; };
+		664824D5BE85C21EF89DCBD4 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C7F8CE2E5E04A0BE58D7A4 /* LoginView.swift */; };
+		13C60A2E9DBBE4D5415110F1 /* UnauthorizedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7518AAA5DCCBE410B001877 /* UnauthorizedView.swift */; };
+		7D8A08BD8CA927042444866C /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 506D627B020A9F7B66B524AB /* CalendarView.swift */; };
+		3B6FF85C825A80DB0A00A9A1 /* SessionCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AE450D98DC2D2ADDF6E78C2 /* SessionCardView.swift */; };
+		734BA426DE422161813770CA /* WeekHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED1FB3F5D16EE5B89AEC6637 /* WeekHeaderView.swift */; };
+		DFD072776ADBBEFD4C349B0E /* SessionModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2019176E150373DA7A6FC294 /* SessionModalView.swift */; };
+		B8BD598EAA283F3817DB503C /* ClientPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39D70923E20EAAC337E351E0 /* ClientPickerView.swift */; };
+		9F15C7C47D1458A3F8F52CE8 /* RecurringEditSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7547D421008847A8EF994AC /* RecurringEditSheet.swift */; };
+		0042A583B08CD41EFCD2BC41 /* ClientListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDC493FE21CE02EB12802D73 /* ClientListView.swift */; };
+		DBE06B751DD330B14E65443B /* ClientRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BA95F5984B3E5E98B1B622 /* ClientRowView.swift */; };
+		ABA02252B4FE6098EC76853F /* ClientFormSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ED5F37C65DFD729B7BA76BA /* ClientFormSheet.swift */; };
+		DE0E813C46C2762A8AC40467 /* SettlementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BABB4539457ADB07C3FE8C4 /* SettlementView.swift */; };
+		F73822F1294A600746AF87DD /* SettlementInstructorCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0563A6F9962BF5D2CEF93ABA /* SettlementInstructorCard.swift */; };
+		177086B92007D5CFD28F87EB /* InstructorSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18B5DCF8C57D67B386C4FDB4 /* InstructorSettingsView.swift */; };
+		AEC5C05BDD5949C2663B4A65 /* InstructorPricingRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0592BA07C4F2C5C62D8C36E0 /* InstructorPricingRow.swift */; };
+		AA58AD9DE4FC6C38CFD991C4 /* NavigationTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8409E3F33D46B2A21103C478 /* NavigationTabBar.swift */; };
+		95EC4D27362D0852C049C7F8 /* LoadingSpinner.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD5EA9DFCCABB7DCE2F28417 /* LoadingSpinner.swift */; };
+		2C852E4A2BB982090A523E70 /* HealColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C4C717CC414F8C85A8C06E2 /* HealColors.swift */; };
+		028A08C6196B1E735FAB0BEC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 55632BA18EBE4B5DFD7BEDAE /* Assets.xcassets */; };
+		3871FF131B24949F7847D131 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = AF3D2B41A32046C0E8413C12 /* GoogleSignIn */; };
+		DA07500D2DA64253F1468388 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 0E403B424A45E5F4E9A7897C /* GoogleSignInSwift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		73B7BABB0B103310ACF86943 /* HealStudioApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealStudioApp.swift; sourceTree = "<group>"; };
+		3B56044E41D14E4F6A23A4DA /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		099365B3D403BEC232EBAD3E /* Instructor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Instructor.swift; sourceTree = "<group>"; };
+		01D84249F4DBFA2B15BA1107 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
+		D396EA717A8C4796DF4732F4 /* Client.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Client.swift; sourceTree = "<group>"; };
+		699BBAF2DBD767639BFCBCEE /* Settlement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settlement.swift; sourceTree = "<group>"; };
+		C59FFCCA139C4697C8D64B82 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		C596E48379E27008DD3698BD /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		30F292B82070D62E8726AB98 /* SessionsAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionsAPI.swift; sourceTree = "<group>"; };
+		8E8A21CB0D3AE09D6555C1F8 /* ClientsAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientsAPI.swift; sourceTree = "<group>"; };
+		AD57CA0F696E55EAA66FB73C /* InstructorsAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstructorsAPI.swift; sourceTree = "<group>"; };
+		0397E6BE6BC47D7A3B943FC3 /* SettlementsAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettlementsAPI.swift; sourceTree = "<group>"; };
+		6D87A9F97AF01D20885094A5 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
+		C33D37D99986878DD0CAC715 /* CalendarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarViewModel.swift; sourceTree = "<group>"; };
+		6215D7DF68E12D5465B50CA0 /* SessionFormViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionFormViewModel.swift; sourceTree = "<group>"; };
+		68F3F9E417837DDF653828EA /* ClientListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientListViewModel.swift; sourceTree = "<group>"; };
+		260B3274A38479BC8A06E1DA /* ClientFormViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientFormViewModel.swift; sourceTree = "<group>"; };
+		82A15B6C9AE5875B9E228535 /* SettlementViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettlementViewModel.swift; sourceTree = "<group>"; };
+		2BE43BC049ABC4AE8E2F492A /* InstructorSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstructorSettingsViewModel.swift; sourceTree = "<group>"; };
+		A1C7F8CE2E5E04A0BE58D7A4 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		C7518AAA5DCCBE410B001877 /* UnauthorizedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnauthorizedView.swift; sourceTree = "<group>"; };
+		506D627B020A9F7B66B524AB /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
+		2AE450D98DC2D2ADDF6E78C2 /* SessionCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionCardView.swift; sourceTree = "<group>"; };
+		ED1FB3F5D16EE5B89AEC6637 /* WeekHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekHeaderView.swift; sourceTree = "<group>"; };
+		2019176E150373DA7A6FC294 /* SessionModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionModalView.swift; sourceTree = "<group>"; };
+		39D70923E20EAAC337E351E0 /* ClientPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientPickerView.swift; sourceTree = "<group>"; };
+		D7547D421008847A8EF994AC /* RecurringEditSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecurringEditSheet.swift; sourceTree = "<group>"; };
+		CDC493FE21CE02EB12802D73 /* ClientListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientListView.swift; sourceTree = "<group>"; };
+		D8BA95F5984B3E5E98B1B622 /* ClientRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientRowView.swift; sourceTree = "<group>"; };
+		9ED5F37C65DFD729B7BA76BA /* ClientFormSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientFormSheet.swift; sourceTree = "<group>"; };
+		3BABB4539457ADB07C3FE8C4 /* SettlementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettlementView.swift; sourceTree = "<group>"; };
+		0563A6F9962BF5D2CEF93ABA /* SettlementInstructorCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettlementInstructorCard.swift; sourceTree = "<group>"; };
+		18B5DCF8C57D67B386C4FDB4 /* InstructorSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstructorSettingsView.swift; sourceTree = "<group>"; };
+		0592BA07C4F2C5C62D8C36E0 /* InstructorPricingRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstructorPricingRow.swift; sourceTree = "<group>"; };
+		8409E3F33D46B2A21103C478 /* NavigationTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationTabBar.swift; sourceTree = "<group>"; };
+		CD5EA9DFCCABB7DCE2F28417 /* LoadingSpinner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingSpinner.swift; sourceTree = "<group>"; };
+		7C4C717CC414F8C85A8C06E2 /* HealColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealColors.swift; sourceTree = "<group>"; };
+		55632BA18EBE4B5DFD7BEDAE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		BE49C1F5BAF5DEC5C2A662E6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		71CCD365E3A654DA84DBA191 /* HealStudio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HealStudio.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E07120471D7CAA46DCD94528 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3871FF131B24949F7847D131 /* GoogleSignIn in Frameworks */,
+				DA07500D2DA64253F1468388 /* GoogleSignInSwift in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		8D3FC6DB5D0827F168A73277 = {
+			isa = PBXGroup;
+			children = (
+				053151C3F6B60830020B8C1D /* App */,
+				B2A020A71567083CBEC7D7F1 /* Models */,
+				571DC86F94E35E0BD1366C5D /* Services */,
+				5A2BFDB9D388004B178F4479 /* ViewModels */,
+				10B566D8FB94862C02BF90EF /* Views */,
+				2FEB45A2AC551B3C65039D98 /* Resources */,
+				1BADDC1D73C1A20F347483E1 /* Products */,
+			);
+			path = HealStudio;
+			sourceTree = "<group>";
+		};
+		1BADDC1D73C1A20F347483E1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				71CCD365E3A654DA84DBA191 /* HealStudio.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2FEB45A2AC551B3C65039D98 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				55632BA18EBE4B5DFD7BEDAE /* Assets.xcassets */,
+				BE49C1F5BAF5DEC5C2A662E6 /* Info.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		053151C3F6B60830020B8C1D /* App */ = {
+			isa = PBXGroup;
+			children = (
+				73B7BABB0B103310ACF86943 /* HealStudioApp.swift */,
+				3B56044E41D14E4F6A23A4DA /* ContentView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		B2A020A71567083CBEC7D7F1 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				099365B3D403BEC232EBAD3E /* Instructor.swift */,
+				01D84249F4DBFA2B15BA1107 /* Session.swift */,
+				D396EA717A8C4796DF4732F4 /* Client.swift */,
+				699BBAF2DBD767639BFCBCEE /* Settlement.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		571DC86F94E35E0BD1366C5D /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				C59FFCCA139C4697C8D64B82 /* APIClient.swift */,
+				C596E48379E27008DD3698BD /* AuthService.swift */,
+				30F292B82070D62E8726AB98 /* SessionsAPI.swift */,
+				8E8A21CB0D3AE09D6555C1F8 /* ClientsAPI.swift */,
+				AD57CA0F696E55EAA66FB73C /* InstructorsAPI.swift */,
+				0397E6BE6BC47D7A3B943FC3 /* SettlementsAPI.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		5A2BFDB9D388004B178F4479 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				6D87A9F97AF01D20885094A5 /* AuthViewModel.swift */,
+				C33D37D99986878DD0CAC715 /* CalendarViewModel.swift */,
+				6215D7DF68E12D5465B50CA0 /* SessionFormViewModel.swift */,
+				68F3F9E417837DDF653828EA /* ClientListViewModel.swift */,
+				260B3274A38479BC8A06E1DA /* ClientFormViewModel.swift */,
+				82A15B6C9AE5875B9E228535 /* SettlementViewModel.swift */,
+				2BE43BC049ABC4AE8E2F492A /* InstructorSettingsViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		10B566D8FB94862C02BF90EF /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				907E3836339F866F9FF63C27 /* Auth */,
+				10B10D4E648EF6420B64A139 /* Calendar */,
+				D08326CA2F9FF0F3D1507229 /* Clients */,
+				3883E061E51E0176483ACAEA /* Settlements */,
+				BCB70B13B1FBA458146DC439 /* Instructors */,
+				73E4E8E46F6025E43085681F /* Shared */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		907E3836339F866F9FF63C27 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				A1C7F8CE2E5E04A0BE58D7A4 /* LoginView.swift */,
+				C7518AAA5DCCBE410B001877 /* UnauthorizedView.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		10B10D4E648EF6420B64A139 /* Calendar */ = {
+			isa = PBXGroup;
+			children = (
+				506D627B020A9F7B66B524AB /* CalendarView.swift */,
+				2AE450D98DC2D2ADDF6E78C2 /* SessionCardView.swift */,
+				ED1FB3F5D16EE5B89AEC6637 /* WeekHeaderView.swift */,
+				2019176E150373DA7A6FC294 /* SessionModalView.swift */,
+				39D70923E20EAAC337E351E0 /* ClientPickerView.swift */,
+				D7547D421008847A8EF994AC /* RecurringEditSheet.swift */,
+			);
+			path = Calendar;
+			sourceTree = "<group>";
+		};
+		D08326CA2F9FF0F3D1507229 /* Clients */ = {
+			isa = PBXGroup;
+			children = (
+				CDC493FE21CE02EB12802D73 /* ClientListView.swift */,
+				D8BA95F5984B3E5E98B1B622 /* ClientRowView.swift */,
+				9ED5F37C65DFD729B7BA76BA /* ClientFormSheet.swift */,
+			);
+			path = Clients;
+			sourceTree = "<group>";
+		};
+		3883E061E51E0176483ACAEA /* Settlements */ = {
+			isa = PBXGroup;
+			children = (
+				3BABB4539457ADB07C3FE8C4 /* SettlementView.swift */,
+				0563A6F9962BF5D2CEF93ABA /* SettlementInstructorCard.swift */,
+			);
+			path = Settlements;
+			sourceTree = "<group>";
+		};
+		BCB70B13B1FBA458146DC439 /* Instructors */ = {
+			isa = PBXGroup;
+			children = (
+				18B5DCF8C57D67B386C4FDB4 /* InstructorSettingsView.swift */,
+				0592BA07C4F2C5C62D8C36E0 /* InstructorPricingRow.swift */,
+			);
+			path = Instructors;
+			sourceTree = "<group>";
+		};
+		73E4E8E46F6025E43085681F /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				8409E3F33D46B2A21103C478 /* NavigationTabBar.swift */,
+				CD5EA9DFCCABB7DCE2F28417 /* LoadingSpinner.swift */,
+				7C4C717CC414F8C85A8C06E2 /* HealColors.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		42AEFBAE01D2DFD981F7DA7D /* HealStudio */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EAF116FE40D68E4ABB26094B /* Build configuration list for PBXNativeTarget "HealStudio" */;
+			buildPhases = (
+				0998B95F2E75B94331298940 /* Sources */,
+				E07120471D7CAA46DCD94528 /* Frameworks */,
+				90D3309A3EDE29A4CEBB8E14 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = HealStudio;
+			packageProductDependencies = (
+				AF3D2B41A32046C0E8413C12 /* GoogleSignIn */,
+				0E403B424A45E5F4E9A7897C /* GoogleSignInSwift */,
+			);
+			productName = HealStudio;
+			productReference = 71CCD365E3A654DA84DBA191 /* HealStudio.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		46F86FAA6BBF9AC94A7E4595 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = ADD3EDE971004D3249A2A24C /* Build configuration list for PBXProject "HealStudio" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = pl;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				pl,
+				Base,
+			);
+			mainGroup = 8D3FC6DB5D0827F168A73277;
+			packageReferences = (
+				B31F55AFE0C5EB9985FF1F67 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+			);
+			productRefGroup = 1BADDC1D73C1A20F347483E1 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				42AEFBAE01D2DFD981F7DA7D /* HealStudio */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		90D3309A3EDE29A4CEBB8E14 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				028A08C6196B1E735FAB0BEC /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0998B95F2E75B94331298940 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8CA9B42EFAA2F467DC47686D /* HealStudioApp.swift in Sources */,
+				EB0A9D809848BF49C952BFFD /* ContentView.swift in Sources */,
+				27DF72112B5991DAD5BBF4DC /* Instructor.swift in Sources */,
+				C2A4F937E3D865120180EE22 /* Session.swift in Sources */,
+				7A2828F641519A9114817371 /* Client.swift in Sources */,
+				98BA956500877B782FF289B9 /* Settlement.swift in Sources */,
+				BCBA0E254C7CE735520A2ADA /* APIClient.swift in Sources */,
+				DF78E7BE86A5CD2918A1F92F /* AuthService.swift in Sources */,
+				95FD3EA1D3FA7AC5CDF428E7 /* SessionsAPI.swift in Sources */,
+				B6E6E2EAED91343B8F4973C9 /* ClientsAPI.swift in Sources */,
+				164324049D348C703772F8DA /* InstructorsAPI.swift in Sources */,
+				8E66C44EAFC9EFC5A0EA3951 /* SettlementsAPI.swift in Sources */,
+				2EE2D77DFBBB8305A0B9150D /* AuthViewModel.swift in Sources */,
+				7ED98ED6309670124AE9E2A0 /* CalendarViewModel.swift in Sources */,
+				42A93308F2857789EEC48F39 /* SessionFormViewModel.swift in Sources */,
+				1DE4EF620722F95C17DC484E /* ClientListViewModel.swift in Sources */,
+				B65B7F223450FE5E6F1434D9 /* ClientFormViewModel.swift in Sources */,
+				D4683764DA6F0E450765EFFC /* SettlementViewModel.swift in Sources */,
+				531CD41DDF5D33BDACEDD127 /* InstructorSettingsViewModel.swift in Sources */,
+				664824D5BE85C21EF89DCBD4 /* LoginView.swift in Sources */,
+				13C60A2E9DBBE4D5415110F1 /* UnauthorizedView.swift in Sources */,
+				7D8A08BD8CA927042444866C /* CalendarView.swift in Sources */,
+				3B6FF85C825A80DB0A00A9A1 /* SessionCardView.swift in Sources */,
+				734BA426DE422161813770CA /* WeekHeaderView.swift in Sources */,
+				DFD072776ADBBEFD4C349B0E /* SessionModalView.swift in Sources */,
+				B8BD598EAA283F3817DB503C /* ClientPickerView.swift in Sources */,
+				9F15C7C47D1458A3F8F52CE8 /* RecurringEditSheet.swift in Sources */,
+				0042A583B08CD41EFCD2BC41 /* ClientListView.swift in Sources */,
+				DBE06B751DD330B14E65443B /* ClientRowView.swift in Sources */,
+				ABA02252B4FE6098EC76853F /* ClientFormSheet.swift in Sources */,
+				DE0E813C46C2762A8AC40467 /* SettlementView.swift in Sources */,
+				F73822F1294A600746AF87DD /* SettlementInstructorCard.swift in Sources */,
+				177086B92007D5CFD28F87EB /* InstructorSettingsView.swift in Sources */,
+				AEC5C05BDD5949C2663B4A65 /* InstructorPricingRow.swift in Sources */,
+				AA58AD9DE4FC6C38CFD991C4 /* NavigationTabBar.swift in Sources */,
+				95EC4D27362D0852C049C7F8 /* LoadingSpinner.swift in Sources */,
+				2C852E4A2BB982090A523E70 /* HealColors.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		7BA3C016E0B5B57210B31A9D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSTETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				ONLY_ACTIVE_ARCH = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
+				SWIFT_COMPILATION_MODE = singlefile;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		47D53771281D97E3FA007F14 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSTETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		54C777A32723F76CB3420D9E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = HealStudio/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "HEAL Studio";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.healpilates.HealStudio;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		1C4852E57A2EB7505670A025 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = HealStudio/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "HEAL Studio";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.healpilates.HealStudio;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		ADD3EDE971004D3249A2A24C /* Build configuration list for PBXProject "HealStudio" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7BA3C016E0B5B57210B31A9D /* Debug */,
+				47D53771281D97E3FA007F14 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EAF116FE40D68E4ABB26094B /* Build configuration list for PBXNativeTarget "HealStudio" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				54C777A32723F76CB3420D9E /* Debug */,
+				1C4852E57A2EB7505670A025 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B31F55AFE0C5EB9985FF1F67 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		AF3D2B41A32046C0E8413C12 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B31F55AFE0C5EB9985FF1F67 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		0E403B424A45E5F4E9A7897C /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B31F55AFE0C5EB9985FF1F67 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
+
+	};
+	rootObject = 46F86FAA6BBF9AC94A7E4595 /* Project object */;
+}
