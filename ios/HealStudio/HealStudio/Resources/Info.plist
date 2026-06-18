@@ -9,14 +9,12 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<!-- Replace with your reversed iOS client ID from Google Cloud Console -->
-				<string>com.googleusercontent.apps.YOUR_IOS_CLIENT_ID</string>
+				<string>com.googleusercontent.apps.972712414874-psj60gfh2s4bv8te48jsm3kidc5tk0rn</string>
 			</array>
 		</dict>
 	</array>
 	<key>GIDClientID</key>
-	<!-- Replace with your iOS client ID from Google Cloud Console -->
-	<string>YOUR_IOS_CLIENT_ID.apps.googleusercontent.com</string>
+	<string>972712414874-psj60gfh2s4bv8te48jsm3kidc5tk0rn.apps.googleusercontent.com</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>
