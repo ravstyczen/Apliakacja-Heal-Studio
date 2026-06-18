@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 enum InstructorRole: String, Codable, CaseIterable {
     case owner
@@ -68,8 +69,6 @@ struct Instructor: Codable, Identifiable, Equatable {
         Color(hex: color)
     }
 }
-
-import SwiftUI
 
 extension Color {
     init(hex: String) {

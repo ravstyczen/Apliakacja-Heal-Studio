@@ -1,4 +1,5 @@
 import Foundation
+import Observation
 
 enum ClientFilter: String, CaseIterable {
     case all = "Wszyscy"
