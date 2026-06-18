@@ -29,9 +29,7 @@ enum APIError: LocalizedError {
 }
 
 struct APIConfig {
-    // TODO: Replace with your deployed Next.js app URL
-    // Find this in your .env.local as NEXTAUTH_URL or APP_URL
-    static let productionURL = "https://YOUR-APP.vercel.app"
+    static let productionURL = "https://apliakacja-heal-studio.vercel.app"
 
     static var baseURL: URL {
         #if DEBUG
