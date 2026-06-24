@@ -3,7 +3,7 @@ import SwiftUI
 
 @Observable
 final class CalendarViewModel {
-    var weekStart: Date = Self.mondayOfWeek(for: Date())
+    var weekStart: Date = CalendarViewModel.mondayOfWeek(for: Date())
     var sessions: [Session] = []
     var allInstructors: [Instructor] = []
     var isLoading = false
