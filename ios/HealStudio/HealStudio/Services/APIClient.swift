@@ -32,11 +32,7 @@ struct APIConfig {
     static let productionURL = "https://apliakacja-heal-studio.vercel.app"
 
     static var baseURL: URL {
-        #if DEBUG
-        return URL(string: "http://localhost:3000")!
-        #else
         return URL(string: productionURL)!
-        #endif
     }
 }
 
